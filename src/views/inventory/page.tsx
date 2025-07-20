@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Plus, Search, Package, Loader2, RefreshCw } from 'lucide-react';
-import { Link } from 'react-router';
 import { BottomNav } from '@/components/bottom-nav';
-import { useFoodItems } from '@/hooks/use-food-items';
-import { useCategories } from '@/hooks/use-categories';
 import { FoodItemCard } from '@/components/food-item-card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useCategories } from '@/hooks/use-categories';
+import { useFoodItems } from '@/hooks/use-food-items';
+import { Loader2, Package, Plus, RefreshCw, Search } from 'lucide-react';
+import { useState } from 'react';
+import { Link } from 'react-router';
 
 export default function InventoryPage() {
   const {
@@ -89,30 +89,66 @@ export default function InventoryPage() {
     <div className='min-h-screen bg-gray-50 pb-20'>
       <div className='bg-white shadow-xs border-b sticky top-0 z-10'>
         <div className='px-4 py-4'>
-          <div className='flex items-center justify-between mb-4'>
-            <h1 className='text-2xl font-bold text-gray-900'>Kho thực phẩm</h1>
-            <div className='flex gap-2'>
-              <Button
-                variant='outline'
-                size='sm'
-                onClick={handleRefresh}
-                disabled={isRefreshing || isLoading}
-                aria-label='Làm mới kho'
-                className='bg-transparent'
-              >
-                <RefreshCw
-                  className={`w-4 h-4 mr-2 ${
-                    isRefreshing ? 'animate-spin' : ''
-                  }`}
-                />
-                Làm mới
-              </Button>
-              <Link to='/inventory/add'>
-                <Button size='sm'>
-                  <Plus className='w-4 h-4 mr-2' />
-                  Thêm thực phẩm
+          <div className='flex flex-col gap-4 mb-6'>
+            {/* Header with title and action buttons */}
+            <div className='flex items-center justify-between'>
+              <div className='flex-1'>
+                <h1 className='text-2xl sm:text-3xl font-bold text-gray-900 leading-tight'>
+                  Kho thực phẩm
+                </h1>
+              </div>
+
+              {/* Mobile action buttons */}
+              <div className='flex sm:hidden gap-3'>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={handleRefresh}
+                  disabled={isRefreshing || isLoading}
+                  aria-label='Làm mới kho'
+                  className='bg-white hover:bg-gray-50 border-gray-200 text-gray-700 hover:text-gray-900 transition-colors'
+                >
+                  <RefreshCw
+                    className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`}
+                  />
                 </Button>
-              </Link>
+                <Link to='/inventory/add'>
+                  <Button
+                    size='sm'
+                    className='bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
+                  >
+                    <Plus className='w-4 h-4' />
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Desktop action buttons */}
+              <div className='hidden sm:flex gap-3'>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={handleRefresh}
+                  disabled={isRefreshing || isLoading}
+                  aria-label='Làm mới kho'
+                  className='bg-white hover:bg-gray-50 border-gray-200 text-gray-700 hover:text-gray-900 transition-colors'
+                >
+                  <RefreshCw
+                    className={`w-4 h-4 mr-2 ${
+                      isRefreshing ? 'animate-spin' : ''
+                    }`}
+                  />
+                  Làm mới
+                </Button>
+                <Link to='/inventory/add'>
+                  <Button
+                    size='sm'
+                    className='bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
+                  >
+                    <Plus className='w-4 h-4 mr-2' />
+                    Thêm thực phẩm
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
 

@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { BottomNav } from '@/components/bottom-nav';
+import { RecipeCard } from '@/components/recipe-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Search, ChefHat } from 'lucide-react';
-import { Link } from 'react-router';
-import { BottomNav } from '@/components/bottom-nav';
 import { useRecipes } from '@/hooks/use-recipes';
-import { RecipeCard } from '@/components/recipe-card';
+import { ChefHat, Plus, Search } from 'lucide-react';
+import { useState } from 'react';
+import { Link } from 'react-router';
 
 export default function RecipesPage() {
   const { recipes, deleteRecipe, loading } = useRecipes();
@@ -43,15 +43,36 @@ export default function RecipesPage() {
       <div className='bg-white shadow-xs border-b sticky top-0 z-10'>
         <div className='px-4 py-4'>
           <div className='flex items-center justify-between mb-4'>
-            <h1 className='text-2xl font-bold text-gray-900'>
-              Công thức nấu ăn
-            </h1>
-            <Link to='/recipes/add'>
-              <Button size='sm'>
-                <Plus className='w-4 h-4 mr-2' />
-                Thêm công thức
-              </Button>
-            </Link>
+            <div className='flex-1'>
+              <h1 className='text-2xl sm:text-3xl font-bold text-gray-900 leading-tight'>
+                Công thức nấu ăn
+              </h1>
+            </div>
+
+            {/* Mobile action button */}
+            <div className='flex sm:hidden'>
+              <Link to='/recipes/add'>
+                <Button
+                  size='sm'
+                  className='bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
+                >
+                  <Plus className='w-4 h-4' />
+                </Button>
+              </Link>
+            </div>
+
+            {/* Desktop action button */}
+            <div className='hidden sm:flex'>
+              <Link to='/recipes/add'>
+                <Button
+                  size='sm'
+                  className='bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
+                >
+                  <Plus className='w-4 h-4 mr-2' />
+                  Thêm công thức
+                </Button>
+              </Link>
+            </div>
           </div>
 
           <div className='relative'>

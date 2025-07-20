@@ -1,15 +1,15 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, Trash2, RefreshCw } from 'lucide-react';
-import { BottomNav } from '@/components/bottom-nav';
 import { AddShoppingItemDialog } from '@/components/add-shopping-item-dialog';
-import { useShoppingList } from '@/hooks/use-shopping-list';
-import { useFoodItems } from '@/hooks/use-food-items';
+import { BottomNav } from '@/components/bottom-nav';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useCategories } from '@/hooks/use-categories';
+import { useFoodItems } from '@/hooks/use-food-items';
 import { useMealPlans } from '@/hooks/use-meal-plans';
 import { useRecipes } from '@/hooks/use-recipes';
+import { useShoppingList } from '@/hooks/use-shopping-list';
+import { RefreshCw, ShoppingCart, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function ShoppingListPage() {
@@ -208,40 +208,66 @@ export default function ShoppingListPage() {
   return (
     <div className='min-h-screen bg-gray-50 pb-20'>
       <div className='bg-white shadow-xs border-b sticky top-0 z-10'>
-        <div className='px-4 py-4'>
-          <div className='flex items-center justify-between mb-4'>
-            <h1 className='text-2xl font-bold text-gray-900'>
-              Danh sách mua sắm
-            </h1>
-            <div className='flex gap-2'>
-              <Button
-                variant='outline'
-                size='sm'
-                onClick={generateFromMealPlans}
-              >
-                <RefreshCw className='w-4 h-4 mr-2' />
-                Tạo tự động
-              </Button>
-              <AddShoppingItemDialog onAddItem={handleAddItem} />
-            </div>
-          </div>
-
-          {totalCount > 0 && (
+        <div className='px-4 py-6'>
+          <div className='flex flex-col gap-4 mb-6'>
+            {/* Header with title and action buttons */}
             <div className='flex items-center justify-between'>
-              <span className='text-sm text-gray-600'>
-                {completedCount} / {totalCount} đã hoàn thành
-              </span>
-              {completedCount > 0 && (
+              <div className='flex-1'>
+                <h1 className='text-2xl sm:text-3xl font-bold text-gray-900 leading-tight'>
+                  Danh sách mua sắm
+                </h1>
+                <p className='text-sm text-gray-500 mt-1 hidden sm:block'>
+                  Quản lý danh sách mua sắm của bạn
+                </p>
+              </div>
+
+              {/* Mobile action buttons */}
+              <div className='flex sm:hidden gap-3'>
                 <Button
-                  variant='ghost'
+                  variant='outline'
                   size='sm'
-                  onClick={handleClearCompleted}
+                  onClick={generateFromMealPlans}
+                  className='bg-white hover:bg-gray-50 border-gray-200 text-gray-700 hover:text-gray-900 transition-colors h-10 w-10 p-0'
                 >
-                  Xóa đã hoàn thành
+                  <RefreshCw className='w-4 h-4' />
                 </Button>
-              )}
+                <AddShoppingItemDialog onAddItem={handleAddItem} />
+              </div>
+
+              {/* Desktop action buttons */}
+              <div className='hidden sm:flex gap-3'>
+                <Button
+                  variant='outline'
+                  size='default'
+                  onClick={generateFromMealPlans}
+                  className='bg-white hover:bg-gray-50 border-gray-200 text-gray-700 hover:text-gray-900 transition-colors'
+                >
+                  <RefreshCw className='w-4 h-4 mr-2' />
+                  Tạo tự động
+                </Button>
+                <AddShoppingItemDialog onAddItem={handleAddItem} />
+              </div>
             </div>
-          )}
+
+            {/* Progress indicator */}
+            {totalCount > 0 && (
+              <div className='flex items-center justify-between pt-2 border-t border-gray-100'>
+                <span className='text-sm text-gray-600'>
+                  {completedCount} / {totalCount} đã hoàn thành
+                </span>
+                {completedCount > 0 && (
+                  <Button
+                    variant='ghost'
+                    size='sm'
+                    onClick={handleClearCompleted}
+                    className='text-gray-500 hover:text-gray-700'
+                  >
+                    Xóa đã hoàn thành
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
