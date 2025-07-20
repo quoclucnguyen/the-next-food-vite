@@ -1,4 +1,4 @@
-import { createHashRouter } from 'react-router';
+import { createMemoryRouter } from 'react-router';
 import App from './App';
 
 // Import pages
@@ -14,7 +14,7 @@ import SettingsPage from './views/settings/page';
 import ShoppingListPage from './views/shopping-list/page';
 
 // Create and export router
-export const router = createHashRouter([
+export const router = createMemoryRouter([
   {
     path: '/',
     element: <App />,
