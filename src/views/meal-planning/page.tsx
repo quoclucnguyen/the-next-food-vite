@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Plus, CalendarIcon, ChefHat } from 'lucide-react';
-import { Link } from 'react-router';
 import { BottomNav } from '@/components/bottom-nav';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useMealPlans } from '@/hooks/use-meal-plans';
 import { useRecipes } from '@/hooks/use-recipes';
+import { CalendarIcon, ChefHat, Plus } from 'lucide-react';
+import { useState } from 'react';
+import { Link } from 'react-router';
 
 export default function MealPlanningPage() {
   const [currentWeek, setCurrentWeek] = useState(new Date());
@@ -16,7 +16,9 @@ export default function MealPlanningPage() {
   const getWeekDates = (startDate: Date) => {
     const week = [];
     const start = new Date(startDate);
-    start.setDate(start.getDate() - (start.getDay() === 0 ? 6 : start.getDay() - 1)); // Start from Monday
+    start.setDate(
+      start.getDate() - (start.getDay() === 0 ? 6 : start.getDay() - 1)
+    ); // Start from Monday
 
     for (let i = 0; i < 7; i++) {
       const date = new Date(start);
@@ -69,15 +71,36 @@ export default function MealPlanningPage() {
       <div className='bg-white shadow-xs border-b sticky top-0 z-10'>
         <div className='px-4 py-4'>
           <div className='flex items-center justify-between mb-4'>
-            <h1 className='text-2xl font-bold text-gray-900'>
-              Lập kế hoạch bữa ăn
-            </h1>
-            <Link to='/meal-planning/add'>
-              <Button size='sm'>
-                <Plus className='w-4 h-4 mr-2' />
-                Thêm bữa ăn
-              </Button>
-            </Link>
+            <div className='flex-1'>
+              <h1 className='text-2xl sm:text-3xl font-bold text-gray-900 leading-tight'>
+                Lập kế hoạch bữa ăn
+              </h1>
+            </div>
+
+            {/* Mobile action button */}
+            <div className='flex sm:hidden'>
+              <Link to='/meal-planning/add'>
+                <Button
+                  size='sm'
+                  className='bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
+                >
+                  <Plus className='w-4 h-4' />
+                </Button>
+              </Link>
+            </div>
+
+            {/* Desktop action button */}
+            <div className='hidden sm:flex'>
+              <Link to='/meal-planning/add'>
+                <Button
+                  size='sm'
+                  className='bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
+                >
+                  <Plus className='w-4 h-4 mr-2' />
+                  Thêm bữa ăn
+                </Button>
+              </Link>
+            </div>
           </div>
 
           <div className='flex items-center justify-between'>
