@@ -1,20 +1,20 @@
-import { createBrowserRouter } from 'react-router';
+import { createHashRouter } from 'react-router';
 import App from './App';
 
 // Import pages
 import HomePage from './views/HomePage';
-import RecipesPage from './views/recipes/page';
-import InventoryPage from './views/inventory/page';
-import MealPlanningPage from './views/meal-planning/page';
-import ShoppingListPage from './views/shopping-list/page';
-import SettingsPage from './views/settings/page';
 import AddItemPage from './views/inventory/add/page';
+import InventoryPage from './views/inventory/page';
 import AddMealPage from './views/meal-planning/add/page';
+import MealPlanningPage from './views/meal-planning/page';
 import RecipeDetailPage from './views/recipes/[id]/page';
 import AddRecipePage from './views/recipes/add/page';
+import RecipesPage from './views/recipes/page';
+import SettingsPage from './views/settings/page';
+import ShoppingListPage from './views/shopping-list/page';
 
 // Create and export router
-export const router = createBrowserRouter([
+export const router = createHashRouter([
   {
     path: '/',
     element: <App />,
