@@ -16,7 +16,7 @@ export default function MealPlanningPage() {
   const getWeekDates = (startDate: Date) => {
     const week = [];
     const start = new Date(startDate);
-    start.setDate(start.getDate() - start.getDay()); // Start from Sunday
+    start.setDate(start.getDate() - (start.getDay() === 0 ? 6 : start.getDay() - 1)); // Start from Monday
 
     for (let i = 0; i < 7; i++) {
       const date = new Date(start);
