@@ -1,4 +1,3 @@
-import { BottomNav } from '@/components/bottom-nav';
 import { FoodItemCard } from '@/components/food-item-card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -86,20 +85,20 @@ export default function InventoryPage() {
   }
 
   return (
-    <div className='min-h-screen bg-gray-50 pb-20'>
+    <div className='min-h-full bg-gray-50'>
       <div className='bg-white shadow-xs border-b sticky top-0 z-10'>
         <div className='px-4 py-4'>
           <div className='flex flex-col gap-4 mb-6'>
             {/* Header with title and action buttons */}
             <div className='flex items-center justify-between'>
-              <div className='flex-1'>
-                <h1 className='text-2xl sm:text-3xl font-bold text-gray-900 leading-tight'>
+              <div className='flex-1 min-w-0'>
+                <h1 className='text-2xl sm:text-3xl font-bold text-gray-900 leading-tight truncate'>
                   Kho thực phẩm
                 </h1>
               </div>
 
               {/* Mobile action buttons */}
-              <div className='flex sm:hidden gap-3'>
+              <div className='flex sm:hidden gap-3 shrink-0'>
                 <Button
                   variant='outline'
                   size='sm'
@@ -116,6 +115,7 @@ export default function InventoryPage() {
                   <Button
                     size='sm'
                     className='bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
+                    aria-label='Thêm thực phẩm'
                   >
                     <Plus className='w-4 h-4' />
                   </Button>
@@ -123,7 +123,7 @@ export default function InventoryPage() {
               </div>
 
               {/* Desktop action buttons */}
-              <div className='hidden sm:flex gap-3'>
+              <div className='hidden sm:flex gap-3 shrink-0'>
                 <Button
                   variant='outline'
                   size='sm'
@@ -163,7 +163,7 @@ export default function InventoryPage() {
               />
             </div>
 
-            <div className='flex gap-2 overflow-x-auto pb-2'>
+            <div className='flex gap-2 overflow-x-auto pb-2 flex-nowrap w-full'>
               {categories.map((category) => {
                 const userCategory = userCategories.find(
                   (cat) => cat.name === category
@@ -182,7 +182,7 @@ export default function InventoryPage() {
                     }
                     size='sm'
                     onClick={() => setSelectedCategory(category)}
-                    className='whitespace-nowrap'
+                    className='whitespace-nowrap shrink-0'
                   >
                     {displayName}
                   </Button>
@@ -195,7 +195,7 @@ export default function InventoryPage() {
 
       <div className='p-4'>
         {filteredInventory.length > 0 ? (
-          <div className='space-y-3'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3'>
             {filteredInventory.map((item) => (
               <FoodItemCard
                 key={item.id}
@@ -225,7 +225,6 @@ export default function InventoryPage() {
         )}
       </div>
 
-      <BottomNav />
     </div>
   );
 }
