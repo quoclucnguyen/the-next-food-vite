@@ -1,8 +1,9 @@
 import type React from 'react';
 
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ImageUpload } from '@/components/image-upload';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -12,22 +13,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, Loader2, Sparkles, Info } from 'lucide-react';
-import { Link } from 'react-router';
-import { useNavigate } from 'react-router';
-import { useFoodItems } from '@/hooks/use-food-items';
 import { useCategories } from '@/hooks/use-categories';
-import { useUnits } from '@/hooks/use-units';
-import { ImageUpload } from '@/components/image-upload';
+import { useFoodItems } from '@/hooks/use-food-items';
 import { useSettings } from '@/hooks/use-settings';
+import { useUnits } from '@/hooks/use-units';
 import { GeminiClient, type AIAnalyzedFoodItem } from '@/lib/gemini-client';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ArrowLeft, Info, Loader2, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router';
 
 export default function AddItemPage() {
   const navigate = useNavigate();
   const { settings, hasGeminiApiKey, getSelectedGeminiModel } = useSettings();
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { units, isLoading: unitsLoading } = useUnits();
+  const todayStr = new Date().toLocaleDateString('en-CA');
+  const QUANTITY_MAX = 100000;
+  type FormErrors = {
+    name?: string;
+    quantity?: string;
+    unit?: string;
+    expirationDate?: string;
+    category?: string;
+  };
   const [formData, setFormData] = useState({
     name: '',
     quantity: 0, // Changed from empty string to number
@@ -36,6 +44,7 @@ export default function AddItemPage() {
     category: '',
     imageUrl: '',
   });
+  const [errors, setErrors] = useState<FormErrors>({});
 
   const [aiAnalysisLoading, setAiAnalysisLoading] = useState(false);
   const [aiAnalysisError, setAiAnalysisError] = useState<string | null>(null);
@@ -105,16 +114,36 @@ export default function AddItemPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    const newErrors: FormErrors = {};
+    if (!formData.name.trim()) {
+      newErrors.name = 'Vui lòng nhập tên mặt hàng';
+    }
     if (
-      !formData.name ||
       !formData.quantity ||
-      !formData.unit ||
-      !formData.expirationDate ||
-      !formData.category
+      isNaN(formData.quantity) ||
+      formData.quantity <= 0
     ) {
+      newErrors.quantity = 'Số lượng phải lớn hơn 0';
+    } else if (formData.quantity > QUANTITY_MAX) {
+      newErrors.quantity = `Số lượng quá lớn (tối đa ${QUANTITY_MAX})`;
+    }
+    if (!formData.unit) {
+      newErrors.unit = 'Vui lòng chọn đơn vị';
+    }
+    if (!formData.category) {
+      newErrors.category = 'Vui lòng chọn danh mục';
+    }
+    if (!formData.expirationDate) {
+      newErrors.expirationDate = 'Vui lòng chọn ngày hết hạn';
+    } else if (formData.expirationDate < todayStr) {
+      newErrors.expirationDate = 'Ngày hết hạn không được ở quá khứ';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
+    setErrors({});
 
     try {
       await addItem({
@@ -247,10 +276,24 @@ export default function AddItemPage() {
                   id='name'
                   placeholder='ví dụ: Chuối, Sữa, Ức gà'
                   value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
+                  required
+                  aria-invalid={!!errors.name}
+                  className={
+                    errors.name
+                      ? 'border-red-500 focus-visible:ring-red-500'
+                      : ''
                   }
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setFormData({ ...formData, name: value });
+                    if (errors.name && value.trim()) {
+                      setErrors({ ...errors, name: undefined });
+                    }
+                  }}
                 />
+                {errors.name && (
+                  <p className='text-sm text-red-600 mt-1'>{errors.name}</p>
+                )}
               </div>
 
               <div className='grid grid-cols-2 gap-4'>
@@ -260,26 +303,54 @@ export default function AddItemPage() {
                     id='quantity'
                     type='number'
                     step='0.1'
+                    min='0.1'
+                    max={QUANTITY_MAX}
                     placeholder='1.5'
                     value={formData.quantity}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        quantity: parseFloat(e.target.value) || 0,
-                      })
+                    required
+                    aria-invalid={!!errors.quantity}
+                    className={
+                      errors.quantity
+                        ? 'border-red-500 focus-visible:ring-red-500'
+                        : ''
                     }
+                    onChange={(e) => {
+                      const parsed = parseFloat(e.target.value);
+                      const value = isNaN(parsed) ? 0 : parsed;
+                      setFormData({ ...formData, quantity: value });
+                      if (
+                        errors.quantity &&
+                        value > 0 &&
+                        value <= QUANTITY_MAX
+                      ) {
+                        setErrors({ ...errors, quantity: undefined });
+                      }
+                    }}
                   />
+                  {errors.quantity && (
+                    <p className='text-sm text-red-600 mt-1'>
+                      {errors.quantity}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor='unit'>Đơn vị</Label>
                   <Select
                     value={formData.unit}
-                    onValueChange={(value: string) =>
-                      setFormData({ ...formData, unit: value })
-                    }
+                    onValueChange={(value: string) => {
+                      setFormData({ ...formData, unit: value });
+                      if (errors.unit && value) {
+                        setErrors({ ...errors, unit: undefined });
+                      }
+                    }}
                     disabled={unitsLoading}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger
+                      className={
+                        errors.unit ? 'border-red-500 focus:ring-red-500' : ''
+                      }
+                      aria-invalid={!!errors.unit}
+                    >
                       <SelectValue
                         placeholder={
                           unitsLoading ? 'Đang tải đơn vị...' : 'Chọn đơn vị'
@@ -294,6 +365,9 @@ export default function AddItemPage() {
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.unit && (
+                    <p className='text-sm text-red-600 mt-1'>{errors.unit}</p>
+                  )}
                 </div>
               </div>
 
@@ -301,12 +375,20 @@ export default function AddItemPage() {
                 <Label htmlFor='category'>Danh mục</Label>
                 <Select
                   value={formData.category}
-                  onValueChange={(value: string) =>
-                    setFormData({ ...formData, category: value })
-                  }
+                  onValueChange={(value: string) => {
+                    setFormData({ ...formData, category: value });
+                    if (errors.category && value) {
+                      setErrors({ ...errors, category: undefined });
+                    }
+                  }}
                   disabled={categoriesLoading}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger
+                    className={
+                      errors.category ? 'border-red-500 focus:ring-red-500' : ''
+                    }
+                    aria-invalid={!!errors.category}
+                  >
                     <SelectValue
                       placeholder={
                         categoriesLoading
@@ -323,6 +405,9 @@ export default function AddItemPage() {
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.category && (
+                  <p className='text-sm text-red-600 mt-1'>{errors.category}</p>
+                )}
               </div>
 
               <div>
@@ -330,11 +415,28 @@ export default function AddItemPage() {
                 <Input
                   id='expirationDate'
                   type='date'
+                  min={todayStr}
                   value={formData.expirationDate}
-                  onChange={(e) =>
-                    setFormData({ ...formData, expirationDate: e.target.value })
+                  required
+                  aria-invalid={!!errors.expirationDate}
+                  className={
+                    errors.expirationDate
+                      ? 'border-red-500 focus-visible:ring-red-500'
+                      : ''
                   }
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setFormData({ ...formData, expirationDate: value });
+                    if (errors.expirationDate && value && value >= todayStr) {
+                      setErrors({ ...errors, expirationDate: undefined });
+                    }
+                  }}
                 />
+                {errors.expirationDate && (
+                  <p className='text-sm text-red-600 mt-1'>
+                    {errors.expirationDate}
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>

@@ -10,4 +10,13 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  test: {
+    environment: "jsdom",
+    globals: true,
+    setupFiles: ["src/test/setup.ts"],
+    coverage: {
+      reporter: ["text", "lcov"],
+      exclude: ["node_modules/", "dist/", "src/**/*.d.ts"],
+    },
+  },
 });

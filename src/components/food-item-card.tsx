@@ -4,6 +4,18 @@ import { Badge } from '@/components/ui/badge';
 import { Edit, Trash2 } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { Link } from 'react-router';
+import { buttonVariants } from '@/lib/button-variants';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface FoodItemCardProps {
   item: {
@@ -93,14 +105,36 @@ export function FoodItemCard({ item, onDelete }: FoodItemCardProps) {
                 <Edit className='w-4 h-4' />
               </Button>
             </Link>
-            <Button
-              variant='ghost'
-              size='sm'
-              onClick={() => onDelete(item.id)}
-              className='h-8 w-8 p-0'
-            >
-              <Trash2 className='w-4 h-4' />
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  className='h-8 w-8 p-0'
+                  aria-label={`Xóa ${item.name}`}
+                >
+                  <Trash2 className='w-4 h-4' />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Xóa thực phẩm?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Bạn có chắc chắn muốn xóa '{item.name}'? Hành động này
+                    không thể hoàn tác.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Hủy</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => onDelete(item.id)}
+                    className={`${buttonVariants({ variant: 'destructive' })} bg-red-700 hover:bg-red-800 text-white`}
+                  >
+                    Xóa
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </CardContent>
