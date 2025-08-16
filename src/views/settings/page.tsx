@@ -2,6 +2,7 @@
 
 import { CategoriesUnitsManager } from '@/components/categories-units-manager';
 import { GeminiApiKeySetup } from '@/components/gemini-api-key-setup';
+import { GeminiImageModelSelector } from '@/components/gemini-image-model-selector';
 import { GeminiModelSelector } from '@/components/gemini-model-selector';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -31,6 +32,7 @@ export default function SettingsPage() {
     hasGeminiApiKey,
     hasApiKeyInDb,
     getSelectedGeminiModel,
+    getSelectedImageModel,
   } = useSettings();
 
   const handlePreferenceChange = async (
@@ -103,6 +105,28 @@ export default function SettingsPage() {
                   error instanceof Error
                     ? error.message
                     : 'Lỗi khi lưu lựa chọn mô hình văn bản',
+              };
+            }
+          }}
+          loading={isLoading}
+          disabled={!hasGeminiApiKey}
+        />
+
+        {/* Gemini Model Selection for Image Generation */}
+        <GeminiImageModelSelector
+          currentModel={getSelectedImageModel() ?? undefined}
+          apiKey={settings.geminiApiKey}
+          onModelChange={async (modelId: string) => {
+            try {
+              await updatePreferences({ selectedImageModel: modelId });
+              return { success: true };
+            } catch (error: unknown) {
+              return {
+                success: false,
+                error:
+                  error instanceof Error
+                    ? error.message
+                    : 'Lỗi khi lưu lựa chọn mô hình hình ảnh',
               };
             }
           }}
