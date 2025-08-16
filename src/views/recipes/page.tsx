@@ -1,4 +1,3 @@
-import { BottomNav } from '@/components/bottom-nav';
 import { RecipeCard } from '@/components/recipe-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,7 +38,7 @@ export default function RecipesPage() {
   }
 
   return (
-    <div className='min-h-screen bg-gray-50 pb-20'>
+    <>
       <div className='bg-white shadow-xs border-b sticky top-0 z-10'>
         <div className='px-4 py-4'>
           <div className='flex items-center justify-between mb-4'>
@@ -120,8 +119,6 @@ export default function RecipesPage() {
           </div>
         )}
       </div>
-
-      <BottomNav />
-    </div>
+    </>
   );
 }

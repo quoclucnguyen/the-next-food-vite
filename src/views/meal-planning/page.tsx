@@ -1,4 +1,3 @@
-import { BottomNav } from '@/components/bottom-nav';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -67,7 +66,7 @@ export default function MealPlanningPage() {
   };
 
   return (
-    <div className='min-h-screen bg-gray-50 pb-20'>
+    <>
       <div className='bg-white shadow-xs border-b sticky top-0 z-10'>
         <div className='px-4 py-4'>
           <div className='flex items-center justify-between mb-4'>
@@ -222,8 +221,6 @@ export default function MealPlanningPage() {
           </Card>
         )}
       </div>
-
-      <BottomNav />
-    </div>
+    </>
   );
 }

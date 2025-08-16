@@ -1,5 +1,4 @@
 import { AddShoppingItemDialog } from '@/components/add-shopping-item-dialog';
-import { BottomNav } from '@/components/bottom-nav';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -206,7 +205,7 @@ export default function ShoppingListPage() {
   }, {} as Record<string, typeof shoppingList>);
 
   return (
-    <div className='min-h-screen bg-gray-50 pb-20'>
+    <>
       <div className='bg-white shadow-xs border-b sticky top-0 z-10'>
         <div className='px-4 py-6'>
           <div className='flex flex-col gap-4 mb-6'>
@@ -350,8 +349,6 @@ export default function ShoppingListPage() {
           </div>
         )}
       </div>
-
-      <BottomNav />
-    </div>
+    </>
   );
 }

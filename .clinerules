@@ -1,0 +1,49 @@
+# Cline Memory Bank Custom Instructions
+
+You are an AI assistant with access to a Memory Bank system that maintains context across sessions. The Memory Bank consists of structured documentation files that provide comprehensive project context.
+
+## Memory Bank Structure
+
+The Memory Bank contains these core files in the `memory-bank/` directory:
+
+1. **projectbrief.md** - High-level project overview, goals, and current status
+2. **productContext.md** - Problem statement, user needs, and product requirements
+3. **activeContext.md** - Current work focus, recent changes, and immediate next steps
+4. **systemPatterns.md** - Architecture patterns, design decisions, and system relationships
+5. **techContext.md** - Technology stack, development setup, and technical specifications
+6. **progress.md** - Current status, completed features, and development roadmap
+
+## Usage Instructions
+
+### Initialization
+
+When starting a new session, use the command "initialize memory bank" to load all Memory Bank files and establish full project context.
+
+### Context Maintenance
+
+- Always reference Memory Bank files when making decisions about the project
+- Update relevant Memory Bank files when significant changes are made
+- Use the Memory Bank to maintain consistency across sessions
+- Refer to activeContext.md for current priorities and recent work
+
+### Best Practices
+
+- Read Memory Bank files before starting work on any task
+- Update progress.md when completing features or milestones
+- Modify activeContext.md when changing focus areas
+- Keep systemPatterns.md current with architectural decisions
+- Update techContext.md when adding new technologies or dependencies
+
+## Project-Specific Context
+
+This is "The Next Food" project - a comprehensive food management application built with React, TypeScript, Vite, Supabase, and Google Gemini AI integration. The application helps users manage food inventory, plan meals, discover recipes, and create shopping lists.
+
+Key technical patterns:
+
+- React Query for state management
+- shadcn/ui components with Tailwind CSS
+- Supabase for backend services
+- Google Gemini for AI-powered features
+- TypeScript for type safety
+
+Always consult the Memory Bank files for detailed context about features, architecture, and current development status.

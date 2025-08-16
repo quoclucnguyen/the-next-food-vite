@@ -1,6 +1,5 @@
 'use client';
 
-import { BottomNav } from '@/components/bottom-nav';
 import { CategoriesUnitsManager } from '@/components/categories-units-manager';
 import { GeminiApiKeySetup } from '@/components/gemini-api-key-setup';
 import { GeminiModelSelector } from '@/components/gemini-model-selector';
@@ -65,7 +64,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className='min-h-screen bg-gray-50 pb-20'>
+    <>
       <div className='bg-white shadow-xs border-b sticky top-0 z-10'>
         <div className='px-4 py-4'>
           <div className='flex items-center gap-3'>
@@ -288,8 +287,6 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
       </div>
-
-      <BottomNav />
-    </div>
+    </>
   );
 }
