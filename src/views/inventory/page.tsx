@@ -1,4 +1,5 @@
 import { FoodItemCard } from '@/components/food-item-card';
+import { MultiSelectCategories } from '@/components/multi-select-categories';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,7 +20,9 @@ export default function InventoryPage() {
   } = useFoodItems();
   const { categories: userCategories } = useCategories();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([
+    'all',
+  ]);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const filteredInventory = inventory.filter((item) => {
@@ -27,7 +30,8 @@ export default function InventoryPage() {
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
     const matchesCategory =
-      selectedCategory === 'all' || item.category === selectedCategory;
+      selectedCategories.includes('all') ||
+      selectedCategories.includes(item.category);
     return matchesSearch && matchesCategory;
   });
 
@@ -163,32 +167,12 @@ export default function InventoryPage() {
               />
             </div>
 
-            <div className='flex gap-2 overflow-x-auto pb-2 flex-nowrap w-full'>
-              {categories.map((category) => {
-                const userCategory = userCategories.find(
-                  (cat) => cat.name === category
-                );
-                const displayName =
-                  category === 'all'
-                    ? 'Tất cả'
-                    : userCategory?.display_name ||
-                      category.charAt(0).toUpperCase() + category.slice(1);
-
-                return (
-                  <Button
-                    key={category}
-                    variant={
-                      selectedCategory === category ? 'default' : 'outline'
-                    }
-                    size='sm'
-                    onClick={() => setSelectedCategory(category)}
-                    className='whitespace-nowrap shrink-0'
-                  >
-                    {displayName}
-                  </Button>
-                );
-              })}
-            </div>
+            <MultiSelectCategories
+              categories={categories}
+              userCategories={userCategories}
+              selectedCategories={selectedCategories}
+              onSelectionChange={setSelectedCategories}
+            />
           </div>
         </div>
       </div>
@@ -211,7 +195,7 @@ export default function InventoryPage() {
               Không tìm thấy thực phẩm
             </h3>
             <p className='text-gray-500 mb-4'>
-              {searchTerm || selectedCategory !== 'all'
+              {searchTerm || !selectedCategories.includes('all')
                 ? 'Thử điều chỉnh tìm kiếm hoặc bộ lọc của bạn'
                 : 'Bắt đầu bằng cách thêm một số thực phẩm vào kho của bạn'}
             </p>
@@ -224,7 +208,6 @@ export default function InventoryPage() {
           </div>
         )}
       </div>
-
     </div>
   );
 }

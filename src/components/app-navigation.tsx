@@ -131,16 +131,14 @@ export function AppNavigation({ onExpandedChange }: AppNavigationProps) {
           size='icon'
           onClick={() => setIsExpanded(!isExpanded)}
           aria-label={isExpanded ? 'Thu gọn menu' : 'Mở rộng menu'}
-          className='w-8 h-8 transition-all duration-200 ease-out hover:bg-gray-100 active:scale-95'
+          className='w-8 h-8 transition-all duration-300 ease-in-out hover:bg-gray-100 active:scale-95 will-change-transform'
         >
-          <div
+          <ChevronLeft
             className={cn(
-              'transition-transform duration-300 ease-out',
+              'w-4 h-4 transition-transform duration-300 ease-in-out transform-gpu origin-center will-change-transform',
               isExpanded ? 'rotate-0' : 'rotate-180'
             )}
-          >
-            <ChevronLeft className='w-4 h-4' />
-          </div>
+          />
         </Button>
       </div>
     </div>
