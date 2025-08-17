@@ -8,6 +8,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from '@/components/ui/drawer';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -20,7 +29,7 @@ import {
 import { useCategories } from '@/hooks/use-categories';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useUnits } from '@/hooks/use-units';
-import { Loader2, Plus } from 'lucide-react';
+import { Loader2, Plus, Save, X } from 'lucide-react';
 import { useState } from 'react';
 
 interface AddShoppingItemDialogProps {
@@ -66,6 +75,7 @@ export function AddShoppingItemDialog({
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { units, isLoading: unitsLoading } = useUnits();
   const isMobile = useIsMobile();
+  const [isOpen, setIsOpen] = useState(false);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -127,22 +137,26 @@ export function AddShoppingItemDialog({
   };
 
   const handleOpenChange = (newOpen: boolean) => {
-    if (!loading) {
-      setOpen(newOpen);
-      if (!newOpen) {
-        // Reset form when closing
-        setFormData({
-          name: '',
-          quantity: '1',
-          unit: '',
-          category: '',
-        });
-        setErrors({});
-      }
+    if (loading) return;
+
+    setOpen(newOpen);
+    setIsOpen(newOpen);
+
+    if (!newOpen) {
+      // Reset form when closing
+      setFormData({
+        name: '',
+        quantity: '1',
+        unit: '',
+        category: '',
+      });
+      setErrors({});
+    } else {
+      handleDialogOpen();
     }
   };
 
-  // Set default values when dialog opens and data is loaded
+  // Set default values when dialog/drawer opens and data is loaded
   const handleDialogOpen = () => {
     if (!formData.unit && units && units.length > 0) {
       const defaultUnit =
@@ -156,31 +170,16 @@ export function AddShoppingItemDialog({
     }
   };
 
-  return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild onClick={handleDialogOpen}>
-        {trigger || (
-          <Button
-            size={isMobile ? 'default' : 'sm'}
-            className={isMobile ? 'h-11 min-w-[44px]' : ''}
-          >
-            <Plus className='mr-2' />
-            Thêm mặt hàng
-          </Button>
-        )}
-      </DialogTrigger>
-      <DialogContent
-        className={`sm:max-w-[425px] ${
-          isMobile ? 'mx-4 max-w-[calc(100vw-2rem)] p-4' : ''
-        }`}
-      >
-        <DialogHeader>
-          <DialogTitle>Thêm mặt hàng mua sắm</DialogTitle>
-          <DialogDescription>
+  const formContent = (
+    <>
+      <div className='space-y-4'>
+        <div>
+          <h3 className='text-lg font-semibold'>Thêm mặt hàng mua sắm</h3>
+          <p className='text-sm text-muted-foreground'>
             Thêm một mặt hàng mới vào danh sách mua sắm của bạn. Điền thông tin
             chi tiết bên dưới.
-          </DialogDescription>
-        </DialogHeader>
+          </p>
+        </div>
         <form onSubmit={handleSubmit} className='space-y-4'>
           <div className='space-y-2'>
             <Label htmlFor='item-name' className='text-sm font-medium'>
@@ -306,27 +305,100 @@ export function AddShoppingItemDialog({
             )}
           </div>
 
-          <DialogFooter className={isMobile ? 'flex-col space-y-2' : ''}>
-            <Button
-              type='button'
-              variant='outline'
-              onClick={() => handleOpenChange(false)}
-              disabled={loading}
-              className={isMobile ? 'h-11 w-full' : ''}
-            >
-              Hủy
-            </Button>
-            <Button
-              type='submit'
-              disabled={loading || categoriesLoading || unitsLoading}
-              className={isMobile ? 'h-11 w-full' : ''}
-            >
-              {loading && <Loader2 className='w-4 h-4 mr-2 animate-spin' />}
-              Thêm mặt hàng
-            </Button>
-          </DialogFooter>
+          {isMobile ? (
+            <DrawerFooter className={isMobile ? 'flex-col space-y-2' : ''}>
+              <Button
+                type='submit'
+                disabled={loading || categoriesLoading || unitsLoading}
+                className={isMobile ? 'h-11 w-full' : ''}
+              >
+                {loading && <Loader2 className='w-4 h-4 mr-2 animate-spin' />}
+                <Save className='w-4 h-4 mr-2' />
+                Thêm mặt hàng
+              </Button>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={() => handleOpenChange(false)}
+                disabled={loading}
+                className={isMobile ? 'h-11 w-full' : ''}
+              >
+                <X className='w-4 h-4 mr-2' />
+                Hủy
+              </Button>
+            </DrawerFooter>
+          ) : (
+            <DialogFooter className={isMobile ? 'flex-col space-y-2' : ''}>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={() => handleOpenChange(false)}
+                disabled={loading}
+                className={isMobile ? 'h-11 w-full' : ''}
+              >
+                <X className='w-4 h-4 mr-2' />
+                Hủy
+              </Button>
+              <Button
+                type='submit'
+                disabled={loading || categoriesLoading || unitsLoading}
+                className={isMobile ? 'h-11 w-full' : ''}
+              >
+                {loading && <Loader2 className='w-4 h-4 mr-2 animate-spin' />}
+                <Save className='w-4 h-4 mr-2' />
+                Thêm mặt hàng
+              </Button>
+            </DialogFooter>
+          )}
         </form>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </>
+  );
+
+  return (
+    <>
+      {isMobile ? (
+        <Drawer open={isOpen} onOpenChange={handleOpenChange}>
+          <DrawerTrigger asChild>
+            {trigger || (
+              <Button size='default' className='h-11 min-w-[44px] sm:hidden'>
+                <Plus className='mr-2' />
+                Thêm mặt hàng
+              </Button>
+            )}
+          </DrawerTrigger>
+          <DrawerContent className='max-h-[90vh]'>
+            <div className='mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mt-2 mb-4' />
+            <DrawerHeader className='text-left px-4 pt-0'>
+              <DrawerTitle>Thêm mặt hàng mua sắm</DrawerTitle>
+              <DrawerDescription>
+                Thêm một mặt hàng mới vào danh sách mua sắm của bạn.
+              </DrawerDescription>
+            </DrawerHeader>
+            <div className='px-4'>{formContent}</div>
+          </DrawerContent>
+        </Drawer>
+      ) : (
+        <Dialog open={open} onOpenChange={handleOpenChange}>
+          <DialogTrigger asChild>
+            {trigger || (
+              <Button size='sm' className='hidden sm:inline-flex'>
+                <Plus className='mr-2' />
+                Thêm mặt hàng
+              </Button>
+            )}
+          </DialogTrigger>
+          <DialogContent className='sm:max-w-[425px]'>
+            <DialogHeader>
+              <DialogTitle>Thêm mặt hàng mua sắm</DialogTitle>
+              <DialogDescription>
+                Thêm một mặt hàng mới vào danh sách mua sắm của bạn.
+              </DialogDescription>
+            </DialogHeader>
+            {formContent}
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
   );
 }
