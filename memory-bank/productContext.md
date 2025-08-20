@@ -6,8 +6,8 @@
 
 Modern households face significant challenges in food management:
 
-- **Food Waste**: Average households waste 20-30% of purchased food due to poor tracking and planning
-- **Inefficient Shopping**: Multiple grocery trips due to forgotten items or unclear inventory status
+- **Food Waste**: Average households waste a significant portion of purchased food due to poor tracking and planning
+- **Inefficient Shopping**: Multiple grocery trips or missed items due to unclear inventory status
 - **Meal Planning Struggles**: Difficulty planning meals based on available ingredients
 - **Recipe Discovery**: Hard to find recipes that match available ingredients and dietary preferences
 - **Inventory Chaos**: No clear system for tracking expiration dates, quantities, and locations
@@ -19,7 +19,7 @@ Existing solutions are fragmented:
 - Inventory apps lack meal planning integration
 - Recipe apps don't consider available ingredients
 - Shopping list apps aren't connected to meal plans
-- No comprehensive solution with AI assistance
+- No comprehensive solution with AI assistance tailored for household workflows
 
 ## Problems Being Solved
 
@@ -42,87 +42,41 @@ Existing solutions are fragmented:
 
 ### Core User Journey
 
-1. **Inventory Entry**: Users add items through barcode scanning or manual entry
-2. **Smart Categorization**: AI automatically categorizes items and suggests storage locations
-3. **Expiration Tracking**: System monitors expiration dates and sends timely alerts
-4. **Meal Planning**: AI suggests meals based on available ingredients and preferences
-5. **Shopping Integration**: Generate shopping lists for planned meals and low inventory items
-6. **Recipe Execution**: Guide users through cooking with available ingredients
+1. Inventory entry via barcode scanning or manual entry
+2. AI-assisted categorization and recipe suggestions
+3. Expiration tracking with timely alerts
+4. Meal planning using current inventory and preferences
+5. Smart shopping lists for missing ingredients
+6. Guided recipe execution with images and steps
 
 ### Key Workflows
 
-#### Inventory Management Workflow
+- Inventory Management: Scan or add item → auto-fill details → confirm quantity & location → monitor expiration
+- Meal Planning: Set preferences → AI suggests plans using inventory → user selects and schedules
+- Shopping: Generate optimized shopping lists from plans and inventory gaps → post-shopping quick inventory update
 
-- Scan barcode or search for item
-- System auto-fills product details (name, category, typical expiration)
-- User confirms quantity and storage location
-- Item added to inventory with expiration tracking
-- System suggests recipes if item is nearing expiration
+## User Experience Goals
 
-#### Meal Planning Workflow
+- Simple entry (one-tap scanning)
+- Clear expiration indicators and suggestions
+- Intelligent, personalized recommendations from Gemini AI
+- Fast, mobile-first interactions with offline-first considerations
 
-- User sets dietary preferences and restrictions
-- AI analyzes current inventory
-- System suggests meal plans optimizing ingredient usage
-- User selects preferred meals for the week
-- Shopping list generated for missing ingredients
+## Integration Notes
 
-#### Shopping Workflow
-
-- System analyzes meal plan and current inventory
-- Generates optimized shopping list by store layout
-- User can add custom items or modify quantities
-- Post-shopping: quick inventory update via barcode scanning
-
-### User Experience Goals
-
-#### Simplicity
-
-- One-tap barcode scanning for inventory entry
-- Intuitive categorization and search
-- Clear visual indicators for expiration status
-- Streamlined meal planning interface
-
-#### Intelligence
-
-- AI-powered recipe suggestions based on available ingredients
-- Smart shopping list optimization
-- Predictive inventory management
-- Personalized meal recommendations
-
-#### Integration
-
-- Seamless flow between inventory, meal planning, and shopping
-- Cross-device synchronization
-- Family sharing capabilities
-- Calendar integration for meal scheduling
-
-#### Reliability
-
-- Offline functionality for core features
-- Accurate barcode database
-- Reliable expiration date tracking
-- Consistent performance across devices
+- Gemini AI used for recipe suggestions; integration is partial and being refined.
+- Supabase handles auth and storage; RLS ensures user data isolation.
+- Barcode scanning is high priority and planned but not fully implemented.
 
 ## Success Indicators
 
-### User Engagement
+- Increased on-time use of inventory (daily/weekly checks)
+- Reduced food spoilage for active users
+- Frequent meal plan creation and shopping-list generation
+- Positive user feedback on recipe relevance
 
-- Daily active usage for inventory checks
-- Weekly meal planning sessions
-- Regular shopping list generation
-- High recipe discovery and execution rates
+## Current Status
 
-### Outcome Metrics
-
-- Measurable reduction in food waste
-- Decreased grocery shopping frequency
-- Improved meal variety and nutrition
-- Time savings in meal planning and shopping
-
-### Technical Performance
-
-- Fast barcode scanning and recognition
-- Accurate AI recipe suggestions
-- Reliable cross-device synchronization
-- Minimal app crashes and errors
+- Product context refreshed to reflect repository state at commit `9c885c6031b7137163acaa1dd97d80f19f61b893` (2025-08-20).
+- AI features present but require prompt and response parsing improvements.
+- Barcode scanning prioritized for upcoming sprints.

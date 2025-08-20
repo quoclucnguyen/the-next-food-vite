@@ -24,262 +24,113 @@ The Next Food follows a modern React-based single-page application (SPA) archite
 
 ### Component Architecture
 
-- **Atomic Design Principles**: Components organized from atoms to organisms
-- **Compound Components**: Complex components built from smaller, focused pieces
-- **Render Props Pattern**: For flexible component composition
-- **Higher-Order Components**: For cross-cutting concerns like authentication
+- Atomic Design Principles: Components organized from atoms to organisms
+- Compound Components: Complex components built from smaller, focused pieces
+- Render Props Pattern: For flexible component composition where useful
+- Higher-Order Components: For cross-cutting concerns like authentication
 
 ## Key Technical Decisions
 
 ### Frontend Framework Choices
 
-- **React 18**: Chosen for its mature ecosystem and concurrent features
-- **TypeScript**: Provides type safety and better developer experience
-- **Vite**: Fast build tool with excellent development experience
-- **Tailwind CSS**: Utility-first CSS framework for rapid UI development
+- React 19.x: Chosen for its ecosystem and concurrent features
+- TypeScript (>=5.x): Strict typing for developer experience
+- Vite: Fast build tool with HMR
+- Tailwind CSS: Utility-first CSS framework
 
 ### State Management Strategy
 
-- **React Query**: Server state management with caching and synchronization
-- **React Context**: Global client state for user preferences and UI state
-- **Local State**: Component-level state with useState and useReducer
-- **URL State**: Navigation and filter state managed through React Router
+- React Query (v5.x): Server state management with caching and background sync
+- React Context: Global client state for preferences/UI
+- Local State: Component-level state with useState/useReducer
+- URL State: Navigation and filter state via React Router
 
 ### Data Flow Architecture
 
-```
 User Action → Custom Hook → React Query → Supabase → Database
-     ↓              ↓            ↓           ↓          ↓
+↓ ↓ ↓ ↓ ↓
 UI Update ← Component ← Cache ← Response ← API ← Query Result
-```
 
 ### Authentication & Authorization
 
-- **Supabase Auth**: Handles user authentication and session management
-- **Row Level Security (RLS)**: Database-level authorization
-- **Protected Routes**: Client-side route protection
-- **JWT Tokens**: Secure API communication
+- Supabase Auth for authentication and session management
+- Row Level Security (RLS) enforced on core tables
+- Protected client-side routes and JWT usage for secure API calls
 
 ## Design Patterns in Use
 
-### Custom Hooks Pattern
-
-Encapsulating business logic in reusable hooks:
-
-```typescript
-// Example pattern
-const useInventoryItems = () => {
-  const query = useQuery(['inventory'], fetchInventoryItems);
-  const addMutation = useMutation(addInventoryItem);
-
-  return {
-    items: query.data,
-    isLoading: query.isLoading,
-    addItem: addMutation.mutate,
-    // ... other operations
-  };
-};
-```
-
-### Repository Pattern
-
-Abstracting data access through service layers:
-
-```typescript
-// Example pattern
-class InventoryRepository {
-  async getItems(userId: string) {
-    /* ... */
-  }
-  async addItem(item: InventoryItem) {
-    /* ... */
-  }
-  async updateItem(id: string, updates: Partial<InventoryItem>) {
-    /* ... */
-  }
-}
-```
-
-### Provider Pattern
-
-Sharing context across component trees:
-
-```typescript
-// Example pattern
-const AppProvider = ({ children }) => (
-  <QueryProvider>
-    <AuthProvider>
-      <ThemeProvider>{children}</ThemeProvider>
-    </AuthProvider>
-  </QueryProvider>
-);
-```
-
-### Command Pattern
-
-For complex operations with undo/redo capabilities:
-
-```typescript
-// Example pattern
-interface Command {
-  execute(): Promise<void>;
-  undo(): Promise<void>;
-}
-
-class AddInventoryItemCommand implements Command {
-  // Implementation
-}
-```
+- Custom Hooks Pattern: Encapsulating business logic in reusable hooks
+- Repository Pattern: Abstracting data access through service layers
+- Provider Pattern: Sharing context across component trees
+- Command Pattern: Used in complex operations where undo/redo may be needed
 
 ## Component Relationships
 
-### Core Component Hierarchy
+Current component hierarchy (high level):
 
-```
 App
 ├── AuthWrapper
-│   ├── AppLayout
-│   │   ├── Navigation (BottomNav)
-│   │   ├── UserMenu
-│   │   └── PageContent
-│   │       ├── HomePage
-│   │       ├── InventoryPage
-│   │       │   ├── FoodItemCard[]
-│   │       │   └── AddItemDialog
-│   │       ├── RecipesPage
-│   │       │   ├── RecipeCard[]
-│   │       │   └── RecipeSuggestions
-│   │       ├── MealPlanningPage
-│   │       └── ShoppingListPage
-│   └── QueryProvider
+│ ├── AppLayout
+│ │ ├── Navigation (BottomNav)
+│ │ ├── UserMenu
+│ │ └── PageContent
+│ │ ├── HomePage
+│ │ ├── InventoryPage
+│ │ │ ├── FoodItemCard[]
+│ │ │ └── AddItemDialog / AddItemPage
+│ │ ├── RecipesPage
+│ │ │ ├── RecipeCard[]
+│ │ │ └── RecipeSuggestions
+│ │ ├── MealPlanningPage
+│ │ └── ShoppingListPage
+│ └── QueryProvider
 └── Toaster (Global notifications)
-```
 
-### Shared Component Library
+Currently-open files (active focus)
 
-- **UI Components**: Button, Input, Dialog, Card, etc. (shadcn/ui based)
-- **Form Components**: FormField, FormWrapper, ValidationMessage
-- **Layout Components**: Container, Grid, Stack, Spacer
-- **Feedback Components**: Loading, Error, Empty states
-
-### Data Flow Between Components
-
-- **Props Down**: Data flows down through props
-- **Events Up**: User interactions bubble up through callbacks
-- **Context Across**: Shared state accessed through context
-- **Queries Everywhere**: Server data accessed through React Query hooks
+- src/views/inventory/add/page.tsx
+- src/views/inventory/page.tsx
+- src/components/layouts/AppLayout.tsx
+- src/components/bottom-nav.tsx
 
 ## Critical Implementation Paths
 
 ### Authentication Flow
 
-1. User visits protected route
-2. AuthWrapper checks authentication status
-3. If not authenticated, redirect to login
-4. Login component handles Supabase authentication
-5. On success, user data stored in context
-6. Protected content renders with user context
+1. Protected route check via AuthWrapper
+2. Supabase login/registration
+3. User data stored in context; protected content renders
 
 ### Inventory Management Flow
 
-1. User scans barcode or searches manually
-2. ImageUpload component handles photo capture
-3. AddItemDialog validates and submits data
-4. useInventoryItems hook manages API call
-5. React Query updates cache and UI
-6. FoodItemCard components re-render with new data
+1. Add item (manual or barcode) → AddItemDialog / AddItemPage
+2. ImageUpload handles media
+3. useInventoryItems hook manages API calls and cache updates
+4. FoodItemCard displays item with expiration status
 
 ### Recipe Suggestion Flow
 
-1. User requests recipe suggestions
-2. useRecipes hook calls Gemini API
-3. Current inventory data sent as context
-4. AI returns personalized suggestions
-5. RecipeSuggestions component displays results
-6. User can save recipes to personal collection
-
-### Meal Planning Flow
-
-1. User accesses meal planning interface
-2. useMealPlans hook loads existing plans
-3. AI suggests meals based on inventory
-4. User selects and customizes meal plan
-5. Shopping list automatically generated
-6. Calendar integration shows planned meals
+1. useRecipes calls Gemini API with inventory context
+2. AI returns suggestions; RecipeSuggestions displays parsed results
+3. User can save suggestions to recipes table
 
 ## Dependencies and Tool Configurations
 
-### Core Dependencies
+- Core dependencies: see memory-bank/techContext.md for precise versions synced to package.json
+- Dev tools: ESLint, Prettier, Vitest, Testing Library
 
-```json
-{
-  "react": "^18.2.0",
-  "typescript": "^5.0.0",
-  "vite": "^4.4.0",
-  "@tanstack/react-query": "^4.32.0",
-  "@supabase/supabase-js": "^2.33.0",
-  "react-router-dom": "^6.15.0",
-  "tailwindcss": "^3.3.0"
-}
-```
+## Database Schema Patterns
 
-### Development Tools
+- inventory_items, recipes, recipe_ingredients, meal_plans, shopping_lists, shopping_list_items
+- RLS policies applied to ensure user isolation
 
-- **ESLint**: Code linting with React and TypeScript rules
-- **Prettier**: Code formatting with consistent style
-- **Vitest**: Unit testing framework
-- **TypeScript**: Static type checking
-- **Tailwind CSS**: Utility-first styling
+## Performance & Security Patterns
 
-### Build Configuration
+- Lazy loading, memoization, virtual lists for performance
+- Input validation, parameterized queries and sanitization for security
+- Environment variables for secrets (never committed)
 
-- **Vite Config**: Optimized for React with TypeScript
-- **Path Aliases**: Clean imports with @ prefix
-- **Environment Variables**: Secure API key management
-- **Bundle Splitting**: Optimized loading with code splitting
+## Notes
 
-### Database Schema Patterns
-
-```sql
--- Example table structure
-CREATE TABLE inventory_items (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users(id),
-  name TEXT NOT NULL,
-  category TEXT,
-  quantity INTEGER,
-  expiration_date DATE,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
-);
-
--- Row Level Security
-ALTER TABLE inventory_items ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can only see their own items"
-  ON inventory_items FOR ALL
-  USING (auth.uid() = user_id);
-```
-
-### API Integration Patterns
-
-- **Supabase Client**: Centralized database operations
-- **React Query**: Caching and synchronization
-- **Error Boundaries**: Graceful error handling
-- **Loading States**: Consistent loading indicators
-- **Optimistic Updates**: Immediate UI feedback
-
-### Performance Optimization Patterns
-
-- **Lazy Loading**: Route-based code splitting
-- **Image Optimization**: Responsive images with proper formats
-- **Memoization**: React.memo and useMemo for expensive operations
-- **Virtual Scrolling**: For large lists of items
-- **Debouncing**: For search and filter operations
-
-### Security Patterns
-
-- **Input Validation**: Client and server-side validation
-- **SQL Injection Prevention**: Parameterized queries through Supabase
-- **XSS Protection**: Sanitized user inputs
-- **CSRF Protection**: Secure token handling
-- **Environment Variables**: Secure API key storage
+- File refreshed to reflect repository state at commit `9c885c6031b7137163acaa1dd97d80f19f61b893` (2025-08-20 20:27 UTC+7).
+- System patterns documented to guide development and onboarding.

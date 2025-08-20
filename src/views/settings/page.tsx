@@ -81,6 +81,34 @@ export default function SettingsPage() {
       </div>
 
       <div className='p-4 space-y-6'>
+        {/* App Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle className='flex items-center gap-2'>
+              <Settings className='w-5 h-5' />
+              Thông tin ứng dụng
+            </CardTitle>
+          </CardHeader>
+          <CardContent className='space-y-2'>
+            <div className='flex justify-between text-sm'>
+              <span className='text-gray-600'>Phiên bản</span>
+              <span>1.0.0</span>
+            </div>
+            <div className='flex justify-between text-sm'>
+              <span className='text-gray-600'>Cập nhật lần cuối</span>
+              <span>{new Date().toLocaleDateString()}</span>
+            </div>
+            <div className='flex justify-between text-sm'>
+              <span className='text-gray-600'>Trạng thái Gemini API</span>
+              <span
+                className={hasGeminiApiKey ? 'text-green-600' : 'text-gray-500'}
+              >
+                {hasGeminiApiKey ? 'Đã cấu hình' : 'Chưa cấu hình'}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Gemini API Configuration */}
         <GeminiApiKeySetup
           currentApiKey={settings.geminiApiKey}
@@ -279,34 +307,6 @@ export default function SettingsPage() {
                   handlePreferenceChange('showImages', checked)
                 }
               />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* App Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle className='flex items-center gap-2'>
-              <Settings className='w-5 h-5' />
-              Thông tin ứng dụng
-            </CardTitle>
-          </CardHeader>
-          <CardContent className='space-y-2'>
-            <div className='flex justify-between text-sm'>
-              <span className='text-gray-600'>Phiên bản</span>
-              <span>1.0.0</span>
-            </div>
-            <div className='flex justify-between text-sm'>
-              <span className='text-gray-600'>Cập nhật lần cuối</span>
-              <span>{new Date().toLocaleDateString()}</span>
-            </div>
-            <div className='flex justify-between text-sm'>
-              <span className='text-gray-600'>Trạng thái Gemini API</span>
-              <span
-                className={hasGeminiApiKey ? 'text-green-600' : 'text-gray-500'}
-              >
-                {hasGeminiApiKey ? 'Đã cấu hình' : 'Chưa cấu hình'}
-              </span>
             </div>
           </CardContent>
         </Card>
