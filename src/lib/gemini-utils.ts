@@ -279,7 +279,8 @@ Hướng dẫn:
     "fat": "Ước tính chất béo trên 100g (ví dụ: '0.2 g', '3.6 g')"
   },
   "keyIngredients": ["Danh", "sách", "nguyên", "liệu", "chính", "nếu", "nhận", "ra"],
-  "category": "Danh mục phù hợp nhất (ví dụ: 'fruits', 'vegetables', 'dairy', 'meat', 'grains', 'pantry', 'frozen', 'beverages', 'snacks', 'other')"
+  "category": "Danh mục phù hợp nhất (ví dụ: 'fruits', 'vegetables', 'dairy', 'meat', 'grains', 'pantry', 'frozen', 'beverages', 'snacks', 'other')",
+  "unit": "Đơn vị tính (ví dụ: 'cái', 'kg', 'lít')"
 }
 
 Lưu ý: Sử dụng tên thực phẩm và mô tả bằng tiếng Việt, nhưng giữ nguyên các key trong JSON và category bằng tiếng Anh.`,

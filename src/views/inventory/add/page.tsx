@@ -1,5 +1,3 @@
-import type React from 'react';
-
 import { ImageUpload } from '@/components/image-upload';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -20,7 +18,26 @@ import { useUnits } from '@/hooks/use-units';
 import { GeminiClient, type AIAnalyzedFoodItem } from '@/lib/gemini-client';
 import { ArrowLeft, Info, Loader2, Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useForm, type ControllerRenderProps } from 'react-hook-form';
 import { Link, useNavigate, useParams } from 'react-router';
+
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+
+type InventoryFormValues = {
+  name: string;
+  quantity: number;
+  unit: string;
+  expirationDate: string;
+  category: string;
+  imageUrl?: string;
+};
 
 export default function AddItemPage() {
   const navigate = useNavigate();
@@ -29,22 +46,6 @@ export default function AddItemPage() {
   const { units, isLoading: unitsLoading } = useUnits();
   const todayStr = new Date().toLocaleDateString('en-CA');
   const QUANTITY_MAX = 100000;
-  type FormErrors = {
-    name?: string;
-    quantity?: string;
-    unit?: string;
-    expirationDate?: string;
-    category?: string;
-  };
-  const [formData, setFormData] = useState({
-    name: '',
-    quantity: 0, // Changed from empty string to number
-    unit: '',
-    expirationDate: '',
-    category: '',
-    imageUrl: '',
-  });
-  const [errors, setErrors] = useState<FormErrors>({});
 
   const [aiAnalysisLoading, setAiAnalysisLoading] = useState(false);
   const [aiAnalysisError, setAiAnalysisError] = useState<string | null>(null);
@@ -55,6 +56,18 @@ export default function AddItemPage() {
   const { id } = useParams();
   const isEditMode = Boolean(id);
 
+  const form = useForm<InventoryFormValues>({
+    defaultValues: {
+      name: '',
+      quantity: 0,
+      unit: '',
+      expirationDate: '',
+      category: '',
+      imageUrl: '',
+    },
+  });
+  const { reset, setValue, handleSubmit, control } = form;
+
   // Prefill form when editing and items are available
   useEffect(() => {
     if (!isEditMode) return;
@@ -63,9 +76,9 @@ export default function AddItemPage() {
         (it) => String((it as { id: unknown }).id) === String(id)
       );
       if (existing) {
-        setFormData({
+        reset({
           name: existing.name || '',
-          quantity: (existing.quantity as number) ?? 0,
+          quantity: existing.quantity ?? 0,
           unit: existing.unit || '',
           expirationDate: existing.expiration_date || '',
           category: existing.category || '',
@@ -76,14 +89,12 @@ export default function AddItemPage() {
         refetch();
       }
     }
-  }, [isEditMode, id, items, refetch]);
+  }, [isEditMode, id, items, refetch, reset]);
 
   const handleImageReadyForAI = async (
     base64Image: string,
     mimeType: string
   ) => {
-    console.log('You go here');
-
     if (!hasGeminiApiKey || !settings.geminiApiKey) {
       setAiAnalysisError(
         'Khóa API Gemini chưa được cấu hình. Vui lòng thiết lập trong Cài đặt để kích hoạt phân tích AI.'
@@ -115,15 +126,15 @@ export default function AddItemPage() {
         const data = result.data as AIAnalyzedFoodItem;
         setAiGeneratedInfo(data);
         // Pre-fill form fields with AI-generated data
-        setFormData((prev) => ({
-          ...prev,
-          name: data.name || prev.name,
-          category:
-            data.category &&
-            categories.some((cat) => cat.name === data.category.toLowerCase())
-              ? data.category.toLowerCase()
-              : prev.category,
-        }));
+        if (data.name) {
+          setValue('name', data.name);
+        }
+        if (
+          data.category &&
+          categories.some((cat) => cat.name === data.category.toLowerCase())
+        ) {
+          setValue('category', data.category.toLowerCase());
+        }
       } else {
         setAiAnalysisError(
           result.error || 'Không thể phân tích hình ảnh bằng AI.'
@@ -140,60 +151,33 @@ export default function AddItemPage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const newErrors: FormErrors = {};
-    if (!formData.name.trim()) {
-      newErrors.name = 'Vui lòng nhập tên mặt hàng';
-    }
-    if (
-      !formData.quantity ||
-      isNaN(formData.quantity) ||
-      formData.quantity <= 0
-    ) {
-      newErrors.quantity = 'Số lượng phải lớn hơn 0';
-    } else if (formData.quantity > QUANTITY_MAX) {
-      newErrors.quantity = `Số lượng quá lớn (tối đa ${QUANTITY_MAX})`;
-    }
-    if (!formData.unit) {
-      newErrors.unit = 'Vui lòng chọn đơn vị';
-    }
-    if (!formData.category) {
-      newErrors.category = 'Vui lòng chọn danh mục';
-    }
-    if (!formData.expirationDate) {
-      newErrors.expirationDate = 'Vui lòng chọn ngày hết hạn';
-    } else if (formData.expirationDate < todayStr) {
-      newErrors.expirationDate = 'Ngày hết hạn không được ở quá khứ';
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+  const onSubmit = async (values: InventoryFormValues) => {
+    // Basic validations that complement react-hook-form rules
+    if (!values.name.trim()) {
+      // should be handled by RHF, guard nonetheless
       return;
     }
-    setErrors({});
-
     try {
       if (isEditMode && id) {
         await updateItem({
           id: String(id),
           updates: {
-            name: formData.name,
-            quantity: formData.quantity,
-            unit: formData.unit,
-            expiration_date: formData.expirationDate,
-            category: formData.category,
-            image_url: formData.imageUrl || undefined,
+            name: values.name,
+            quantity: values.quantity,
+            unit: values.unit,
+            expiration_date: values.expirationDate,
+            category: values.category,
+            image_url: values.imageUrl || undefined,
           },
         });
       } else {
         await addItem({
-          name: formData.name,
-          quantity: formData.quantity, // Using the number directly
-          unit: formData.unit,
-          expiration_date: formData.expirationDate,
-          category: formData.category,
-          image_url: formData.imageUrl || undefined,
+          name: values.name,
+          quantity: values.quantity,
+          unit: values.unit,
+          expiration_date: values.expirationDate,
+          category: values.category,
+          image_url: values.imageUrl || undefined,
         });
       }
 
@@ -226,284 +210,314 @@ export default function AddItemPage() {
       </div>
 
       <div className='p-4'>
-        <form onSubmit={handleSubmit} className='space-y-6'>
-          {/* Image Upload */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Ảnh & Phân tích AI</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ImageUpload
-                currentImageUrl={formData.imageUrl}
-                onImageUpload={(url) =>
-                  setFormData({ ...formData, imageUrl: url })
-                }
-                onImageRemove={() => setFormData({ ...formData, imageUrl: '' })}
-                onImageReadyForAI={handleImageReadyForAI}
-                type='food-item'
-                disabled={aiAnalysisLoading} // Disable upload while AI is processing
-              />
+        <Form {...form}>
+          <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
+            {/* Image Upload */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Ảnh & Phân tích AI</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FormField
+                  control={control}
+                  name='imageUrl'
+                  render={({
+                    field,
+                  }: {
+                    field: ControllerRenderProps<
+                      InventoryFormValues,
+                      'imageUrl'
+                    >;
+                  }) => {
+                    return (
+                      <FormItem>
+                        <FormControl>
+                          <ImageUpload
+                            currentImageUrl={field.value}
+                            onImageUpload={(url) => field.onChange(url)}
+                            onImageRemove={() => field.onChange('')}
+                            onImageReadyForAI={async (b64, mime) => {
+                              // Keep image value in form
+                              field.onChange(field.value);
+                              await handleImageReadyForAI(b64, mime);
+                            }}
+                            type='food-item'
+                            disabled={aiAnalysisLoading}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
+                />
 
-              {aiAnalysisLoading && (
-                <div className='flex items-center justify-center py-4 text-gray-600'>
-                  <Loader2 className='w-5 h-5 mr-2 animate-spin' />
-                  Đang phân tích hình ảnh bằng AI...
-                </div>
-              )}
-
-              {aiAnalysisError && (
-                <Alert variant='destructive' className='mt-4'>
-                  <Info className='h-4 w-4' />
-                  <AlertDescription>{aiAnalysisError}</AlertDescription>
-                </Alert>
-              )}
-
-              {aiGeneratedInfo && (
-                <div className='mt-6 space-y-4'>
-                  <h3 className='font-semibold text-lg flex items-center gap-2'>
-                    <Sparkles className='w-5 h-5 text-blue-600' />
-                    Thông tin do AI tạo
-                  </h3>
-                  <div className='space-y-2 text-sm'>
-                    <div>
-                      <Label className='font-medium'>Tên:</Label>
-                      <p>{aiGeneratedInfo.name}</p>
-                    </div>
-                    <div>
-                      <Label className='font-medium'>Mô tả:</Label>
-                      <p>{aiGeneratedInfo.description}</p>
-                    </div>
-                    <div>
-                      <Label className='font-medium'>Danh mục:</Label>
-                      <p className='capitalize'>{aiGeneratedInfo.category}</p>
-                    </div>
-                    <div>
-                      <Label className='font-medium'>
-                        Thông tin dinh dưỡng (trên 100g):
-                      </Label>
-                      <ul className='list-disc list-inside ml-4'>
-                        <li>Calo: {aiGeneratedInfo.caloriesPer100g}</li>
-                        <li>
-                          Protein: {aiGeneratedInfo.macronutrients.protein}
-                        </li>
-                        <li>
-                          Carbohydrate:{' '}
-                          {aiGeneratedInfo.macronutrients.carbohydrates}
-                        </li>
-                        <li>Chất béo: {aiGeneratedInfo.macronutrients.fat}</li>
-                      </ul>
-                    </div>
-                    {aiGeneratedInfo.keyIngredients.length > 0 && (
-                      <div>
-                        <Label className='font-medium'>Thành phần chính:</Label>
-                        <p>{aiGeneratedInfo.keyIngredients.join(', ')}</p>
-                      </div>
-                    )}
+                {aiAnalysisLoading && (
+                  <div className='flex items-center justify-center py-4 text-gray-600'>
+                    <Loader2 className='w-5 h-5 mr-2 animate-spin' />
+                    Đang phân tích hình ảnh bằng AI...
                   </div>
-                  <Alert>
+                )}
+
+                {aiAnalysisError && (
+                  <Alert variant='destructive' className='mt-4'>
                     <Info className='h-4 w-4' />
-                    <AlertDescription>
-                      Các trường bên dưới đã được điền sẵn với dữ liệu do AI
-                      tạo. Vui lòng xem xét và chỉnh sửa khi cần.
-                    </AlertDescription>
+                    <AlertDescription>{aiAnalysisError}</AlertDescription>
                   </Alert>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                )}
 
-          {/* Item Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Chi tiết mặt hàng</CardTitle>
-            </CardHeader>
-            <CardContent className='space-y-4'>
-              <div>
-                <Label htmlFor='name'>Tên mặt hàng</Label>
-                <Input
-                  id='name'
-                  placeholder='ví dụ: Chuối, Sữa, Ức gà'
-                  value={formData.name}
-                  required
-                  aria-invalid={!!errors.name}
-                  className={
-                    errors.name
-                      ? 'border-red-500 focus-visible:ring-red-500'
-                      : ''
-                  }
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setFormData({ ...formData, name: value });
-                    if (errors.name && value.trim()) {
-                      setErrors({ ...errors, name: undefined });
-                    }
+                {aiGeneratedInfo && (
+                  <div className='mt-6 space-y-4'>
+                    <h3 className='font-semibold text-lg flex items-center gap-2'>
+                      <Sparkles className='w-5 h-5 text-blue-600' />
+                      Thông tin do AI tạo
+                    </h3>
+                    <div className='space-y-2 text-sm'>
+                      <div>
+                        <Label className='font-medium'>Tên:</Label>
+                        <p>{aiGeneratedInfo.name}</p>
+                      </div>
+                      <div>
+                        <Label className='font-medium'>Mô tả:</Label>
+                        <p>{aiGeneratedInfo.description}</p>
+                      </div>
+                      <div>
+                        <Label className='font-medium'>Danh mục:</Label>
+                        <p className='capitalize'>{aiGeneratedInfo.category}</p>
+                      </div>
+                      <div>
+                        <Label className='font-medium'>
+                          Thông tin dinh dưỡng (trên 100g):
+                        </Label>
+                        <ul className='list-disc list-inside ml-4'>
+                          <li>Calo: {aiGeneratedInfo.caloriesPer100g}</li>
+                          <li>
+                            Protein: {aiGeneratedInfo.macronutrients.protein}
+                          </li>
+                          <li>
+                            Carbohydrate:{' '}
+                            {aiGeneratedInfo.macronutrients.carbohydrates}
+                          </li>
+                          <li>
+                            Chất béo: {aiGeneratedInfo.macronutrients.fat}
+                          </li>
+                        </ul>
+                      </div>
+                      {aiGeneratedInfo.keyIngredients.length > 0 && (
+                        <div>
+                          <Label className='font-medium'>
+                            Thành phần chính:
+                          </Label>
+                          <p>{aiGeneratedInfo.keyIngredients.join(', ')}</p>
+                        </div>
+                      )}
+                    </div>
+                    <Alert>
+                      <Info className='h-4 w-4' />
+                      <AlertDescription>
+                        Các trường bên dưới đã được điền sẵn với dữ liệu do AI
+                        tạo. Vui lòng xem xét và chỉnh sửa khi cần.
+                      </AlertDescription>
+                    </Alert>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Item Details */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Chi tiết mặt hàng</CardTitle>
+              </CardHeader>
+              <CardContent className='space-y-4'>
+                <FormField
+                  control={control}
+                  name='name'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel htmlFor='name'>Tên mặt hàng</FormLabel>
+                      <FormControl>
+                        <Input
+                          id='name'
+                          placeholder='ví dụ: Chuối, Sữa, Ức gà'
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                  rules={{
+                    required: 'Vui lòng nhập tên mặt hàng',
                   }}
                 />
-                {errors.name && (
-                  <p className='text-sm text-red-600 mt-1'>{errors.name}</p>
-                )}
-              </div>
 
-              <div className='grid grid-cols-2 gap-4'>
-                <div>
-                  <Label htmlFor='quantity'>Số lượng</Label>
-                  <Input
-                    id='quantity'
-                    type='number'
-                    step='0.1'
-                    min='0.1'
-                    max={QUANTITY_MAX}
-                    placeholder='1.5'
-                    value={formData.quantity}
-                    required
-                    aria-invalid={!!errors.quantity}
-                    className={
-                      errors.quantity
-                        ? 'border-red-500 focus-visible:ring-red-500'
-                        : ''
-                    }
-                    onChange={(e) => {
-                      const parsed = parseFloat(e.target.value);
-                      const value = isNaN(parsed) ? 0 : parsed;
-                      setFormData({ ...formData, quantity: value });
-                      if (
-                        errors.quantity &&
-                        value > 0 &&
-                        value <= QUANTITY_MAX
-                      ) {
-                        setErrors({ ...errors, quantity: undefined });
-                      }
+                <div className='grid grid-cols-2 gap-4'>
+                  <FormField
+                    control={control}
+                    name='quantity'
+                    rules={{
+                      required: 'Số lượng phải lớn hơn 0',
+                      min: {
+                        value: 0.000001,
+                        message: 'Số lượng phải lớn hơn 0',
+                      },
+                      max: {
+                        value: QUANTITY_MAX,
+                        message: `Số lượng quá lớn (tối đa ${QUANTITY_MAX})`,
+                      },
                     }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor='quantity'>Số lượng</FormLabel>
+                        <FormControl>
+                          <Input
+                            id='quantity'
+                            type='number'
+                            step='0.1'
+                            min='0.1'
+                            max={QUANTITY_MAX}
+                            placeholder='1.5'
+                            value={field.value ?? ''}
+                            onChange={(e) => {
+                              const parsed = parseFloat(e.target.value);
+                              const value = isNaN(parsed) ? 0 : parsed;
+                              field.onChange(value);
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                  {errors.quantity && (
-                    <p className='text-sm text-red-600 mt-1'>
-                      {errors.quantity}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <Label htmlFor='unit'>Đơn vị</Label>
-                  <Select
-                    value={formData.unit}
-                    onValueChange={(value: string) => {
-                      setFormData({ ...formData, unit: value });
-                      if (errors.unit && value) {
-                        setErrors({ ...errors, unit: undefined });
-                      }
-                    }}
-                    disabled={unitsLoading}
-                  >
-                    <SelectTrigger
-                      className={
-                        errors.unit ? 'border-red-500 focus:ring-red-500' : ''
-                      }
-                      aria-invalid={!!errors.unit}
-                    >
-                      <SelectValue
-                        placeholder={
-                          unitsLoading ? 'Đang tải đơn vị...' : 'Chọn đơn vị'
-                        }
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {units.map((unit) => (
-                        <SelectItem key={unit.id} value={unit.name}>
-                          {unit.display_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors.unit && (
-                    <p className='text-sm text-red-600 mt-1'>{errors.unit}</p>
-                  )}
-                </div>
-              </div>
 
-              <div>
-                <Label htmlFor='category'>Danh mục</Label>
-                <Select
-                  value={formData.category}
-                  onValueChange={(value: string) => {
-                    setFormData({ ...formData, category: value });
-                    if (errors.category && value) {
-                      setErrors({ ...errors, category: undefined });
-                    }
-                  }}
-                  disabled={categoriesLoading}
-                >
-                  <SelectTrigger
-                    className={
-                      errors.category ? 'border-red-500 focus:ring-red-500' : ''
-                    }
-                    aria-invalid={!!errors.category}
-                  >
-                    <SelectValue
-                      placeholder={
-                        categoriesLoading
-                          ? 'Đang tải danh mục...'
-                          : 'Chọn danh mục'
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.name}>
-                        {category.display_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.category && (
-                  <p className='text-sm text-red-600 mt-1'>{errors.category}</p>
-                )}
-              </div>
+                  <FormField
+                    control={control}
+                    name='unit'
+                    rules={{ required: 'Vui lòng chọn đơn vị' }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor='unit'>Đơn vị</FormLabel>
+                        <FormControl>
+                          <Select
+                            value={field.value}
+                            onValueChange={(v: string) => field.onChange(v)}
+                            disabled={unitsLoading}
+                          >
+                            <SelectTrigger
+                              className={field.value ? '' : ''}
+                              aria-invalid={!!field}
+                            >
+                              <SelectValue
+                                placeholder={
+                                  unitsLoading
+                                    ? 'Đang tải đơn vị...'
+                                    : 'Chọn đơn vị'
+                                }
+                              />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {units.map((unit) => (
+                                <SelectItem
+                                  key={unit.id}
+                                  value={unit.name.toLocaleLowerCase()}
+                                >
+                                  {unit.display_name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-              <div>
-                <Label htmlFor='expirationDate'>Ngày hết hạn</Label>
-                <Input
-                  id='expirationDate'
-                  type='date'
-                  min={todayStr}
-                  value={formData.expirationDate}
-                  required
-                  aria-invalid={!!errors.expirationDate}
-                  className={
-                    errors.expirationDate
-                      ? 'border-red-500 focus-visible:ring-red-500'
-                      : ''
-                  }
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setFormData({ ...formData, expirationDate: value });
-                    if (errors.expirationDate && value && value >= todayStr) {
-                      setErrors({ ...errors, expirationDate: undefined });
-                    }
-                  }}
+                <FormField
+                  control={control}
+                  name='category'
+                  rules={{ required: 'Vui lòng chọn danh mục' }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel htmlFor='category'>Danh mục</FormLabel>
+                      <FormControl>
+                        <Select
+                          value={field.value}
+                          onValueChange={(v: string) => field.onChange(v)}
+                          disabled={categoriesLoading}
+                        >
+                          <SelectTrigger aria-invalid={!!field}>
+                            <SelectValue
+                              placeholder={
+                                categoriesLoading
+                                  ? 'Đang tải danh mục...'
+                                  : 'Chọn danh mục'
+                              }
+                            />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories.map((category) => (
+                              <SelectItem
+                                key={category.id}
+                                value={category.display_name.toLocaleLowerCase()}
+                              >
+                                {category.display_name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-                {errors.expirationDate && (
-                  <p className='text-sm text-red-600 mt-1'>
-                    {errors.expirationDate}
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
 
-          <div className='flex gap-3'>
-            <Link to='/inventory' className='flex-1'>
-              <Button variant='outline' className='w-full bg-transparent'>
-                Hủy
+                <FormField
+                  control={control}
+                  name='expirationDate'
+                  rules={{
+                    required: 'Vui lòng chọn ngày hết hạn',
+                    validate: (val) =>
+                      !val ||
+                      val >= todayStr ||
+                      'Ngày hết hạn không được ở quá khứ',
+                  }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel htmlFor='expirationDate'>
+                        Ngày hết hạn
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          id='expirationDate'
+                          type='date'
+                          min={todayStr}
+                          value={field.value}
+                          onChange={(e) => field.onChange(e.target.value)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
+            <div className='flex gap-3'>
+              <Link to='/inventory' className='flex-1'>
+                <Button variant='outline' className='w-full bg-transparent'>
+                  Hủy
+                </Button>
+              </Link>
+              <Button
+                type='submit'
+                className='flex-1'
+                disabled={aiAnalysisLoading}
+              >
+                {isEditMode ? 'Cập nhật' : 'Thêm mặt hàng'}
               </Button>
-            </Link>
-            <Button
-              type='submit'
-              className='flex-1'
-              disabled={aiAnalysisLoading}
-            >
-              {isEditMode ? 'Cập nhật' : 'Thêm mặt hàng'}
-            </Button>
-          </div>
-        </form>
+            </div>
+          </form>
+        </Form>
       </div>
     </div>
   );
