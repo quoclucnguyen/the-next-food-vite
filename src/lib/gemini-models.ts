@@ -4,44 +4,42 @@
  */
 
 export interface GeminiModelInfo {
-  id: string
-  name: string
-  description: string
+  id: string;
+  name: string;
+  description: string;
   capabilities: {
-    text: boolean
-    vision: boolean
-    multimodal: boolean
-  }
-  contextWindow: number
-  maxOutputTokens: number
-  isRecommended?: boolean
-  isDeprecated?: boolean
+    text: boolean;
+    vision: boolean;
+    multimodal: boolean;
+  };
+  contextWindow: number;
+  maxOutputTokens: number;
+  isRecommended?: boolean;
+  isDeprecated?: boolean;
 }
 
 export interface ModelSelectOption {
-  value: string
-  label: string
-  description: string
-  badge?: string
-  disabled?: boolean
+  value: string;
+  label: string;
+  description: string;
+  badge?: string;
+  disabled?: boolean;
 }
 
-export type ModelCapability = keyof GeminiModelInfo['capabilities']
-export type ModelUseCase = 'text' | 'vision' | 'multimodal'
-
-
+export type ModelCapability = keyof GeminiModelInfo['capabilities'];
+export type ModelUseCase = 'text' | 'vision' | 'multimodal';
 
 /**
  * Cache for storing fetched models to avoid repeated API calls
  */
-let modelCache: { models: GeminiModelInfo[]; timestamp: number } | null = null
-const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
+let modelCache: { models: GeminiModelInfo[]; timestamp: number } | null = null;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 /**
  * Clear the model cache
  */
 export function clearModelCache(): void {
-  modelCache = null
+  modelCache = null;
 }
 
 /**
@@ -49,15 +47,16 @@ export function clearModelCache(): void {
  * Returns null if model is not found or cache is empty
  */
 export function getModelInfo(modelId: string): GeminiModelInfo | null {
-  return modelCache?.models?.find(model => model.id === modelId) || null
+  return modelCache?.models?.find((model) => model.id === modelId) || null;
 }
 
 /**
  * Check if cached models are still valid
  */
 function isCacheValid(): boolean {
-  return modelCache !== null &&
-         Date.now() - modelCache.timestamp < CACHE_DURATION
+  return (
+    modelCache !== null && Date.now() - modelCache.timestamp < CACHE_DURATION
+  );
 }
 
 /**
@@ -72,39 +71,41 @@ export async function getAvailableModels(
 ): Promise<GeminiModelInfo[]> {
   // Return cached models if valid and not forcing refresh
   if (!forceRefresh && isCacheValid()) {
-    return modelCache!.models
+    return modelCache!.models;
   }
 
   // Import here to avoid circular dependency
-  const { GeminiClient } = await import("./gemini-client")
+  const { GeminiClient } = await import('./gemini-client');
 
   // Use provided API key or try to get from environment
-  const key = apiKey || (typeof process !== 'undefined' ? process.env?.GEMINI_API_KEY : undefined)
+  const key =
+    apiKey ||
+    (typeof process !== 'undefined' ? process.env?.GEMINI_API_KEY : undefined);
 
   if (!key) {
-    console.warn('No API key provided for getAvailableModels. Returning empty array.')
-    return []
+    console.warn(
+      'No API key provided for getAvailableModels. Returning empty array.'
+    );
+    return [];
   }
 
   try {
-    const client = new GeminiClient(key)
-    const models = await client.getAvailableModels()
+    const client = new GeminiClient(key);
+    const models = await client.getAvailableModels();
 
     // Update cache
     modelCache = {
       models,
-      timestamp: Date.now()
-    }
+      timestamp: Date.now(),
+    };
 
-    return models
+    return models;
   } catch (error) {
-    console.error('Failed to fetch models from Gemini API:', error)
+    console.error('Failed to fetch models from Gemini API:', error);
     // Return cached models if available, otherwise empty array
-    return modelCache?.models || []
+    return modelCache?.models || [];
   }
 }
-
-
 
 /**
  * Get models filtered by capability
@@ -116,8 +117,10 @@ export async function getModelsByCapability(
   capability: ModelCapability,
   apiKey?: string
 ): Promise<GeminiModelInfo[]> {
-  const models = await getAvailableModels(apiKey)
-  return models.filter(model => model.capabilities[capability] && !model.isDeprecated)
+  const models = await getAvailableModels(apiKey);
+  return models.filter(
+    (model) => model.capabilities[capability] && !model.isDeprecated
+  );
 }
 
 /**
@@ -125,9 +128,11 @@ export async function getModelsByCapability(
  * @param apiKey - Optional API key for fetching models
  * @returns Promise resolving to recommended models
  */
-export async function getRecommendedModels(apiKey?: string): Promise<GeminiModelInfo[]> {
-  const models = await getAvailableModels(apiKey)
-  return models.filter(model => model.isRecommended && !model.isDeprecated)
+export async function getRecommendedModels(
+  apiKey?: string
+): Promise<GeminiModelInfo[]> {
+  const models = await getAvailableModels(apiKey);
+  return models.filter((model) => model.isRecommended && !model.isDeprecated);
 }
 
 /**
@@ -136,27 +141,19 @@ export async function getRecommendedModels(apiKey?: string): Promise<GeminiModel
  * @param apiKey - Optional API key for fetching models
  * @returns Promise resolving to validation result
  */
-export async function isValidModel(modelId: string, apiKey?: string): Promise<boolean> {
+export async function isValidModel(
+  modelId: string,
+  apiKey?: string
+): Promise<boolean> {
   try {
-    const availableModels = await getAvailableModels(apiKey)
-    return availableModels.some(model => model.id === modelId && !model.isDeprecated)
+    const availableModels = await getAvailableModels(apiKey);
+    return availableModels.some(
+      (model) => model.id === modelId && !model.isDeprecated
+    );
   } catch (error) {
-    console.error('Error validating model:', error)
-    return false
+    console.error('Error validating model:', error);
+    return false;
   }
-}
-
-/**
- * Synchronous version of isValidModel using cached models
- * @param modelId - The model ID to validate
- * @returns Boolean indicating if model is valid and cached
- */
-export function isValidModelSync(modelId: string): boolean {
-  if (!modelCache?.models) {
-    return false
-  }
-
-  return modelCache.models.some(model => model.id === modelId && !model.isDeprecated)
 }
 
 /**
@@ -173,25 +170,27 @@ export async function getBestModelForUseCase(
   const capabilityMap: Record<ModelUseCase, ModelCapability> = {
     text: 'text',
     vision: 'vision',
-    multimodal: 'multimodal'
-  }
+    multimodal: 'multimodal',
+  };
 
-  const capability = capabilityMap[useCase]
-  const models = await getModelsByCapability(capability, apiKey)
+  const capability = capabilityMap[useCase];
+  const models = await getModelsByCapability(capability, apiKey);
 
   // Prefer recommended models
-  const recommended = models.filter(model => model.isRecommended)
+  const recommended = models.filter((model) => model.isRecommended);
   if (recommended.length > 0) {
-    return recommended[0].id
+    return recommended[0].id;
   }
 
   // Return first available model if any
   if (models.length > 0) {
-    return models[0].id
+    return models[0].id;
   }
 
   // No suitable model found - throw error
-  throw new Error(`No suitable model found for use case '${useCase}'. Please ensure you have a valid API key and that models are available.`)
+  throw new Error(
+    `No suitable model found for use case '${useCase}'. Please ensure you have a valid API key and that models are available.`
+  );
 }
 
 /**
@@ -199,11 +198,13 @@ export async function getBestModelForUseCase(
  * @param apiKey - Optional API key for fetching models
  * @returns Promise resolving to formatted model options
  */
-export async function getModelSelectOptions(apiKey?: string): Promise<ModelSelectOption[]> {
-  const models = await getAvailableModels(apiKey)
+export async function getModelSelectOptions(
+  apiKey?: string
+): Promise<ModelSelectOption[]> {
+  const models = await getAvailableModels(apiKey);
   return models
-    .filter(model => !model.isDeprecated)
-    .map(model => ({
+    .filter((model) => !model.isDeprecated)
+    .map((model) => ({
       value: model.id,
       label: model.name,
       description: model.description,
@@ -212,8 +213,8 @@ export async function getModelSelectOptions(apiKey?: string): Promise<ModelSelec
     }))
     .sort((a, b) => {
       // Sort recommended models first
-      if (a.badge && !b.badge) return -1
-      if (!a.badge && b.badge) return 1
-      return a.label.localeCompare(b.label)
-    })
+      if (a.badge && !b.badge) return -1;
+      if (!a.badge && b.badge) return 1;
+      return a.label.localeCompare(b.label);
+    });
 }

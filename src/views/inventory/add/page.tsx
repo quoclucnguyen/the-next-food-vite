@@ -82,6 +82,8 @@ export default function AddItemPage() {
     base64Image: string,
     mimeType: string
   ) => {
+    console.log('You go here');
+
     if (!hasGeminiApiKey || !settings.geminiApiKey) {
       setAiAnalysisError(
         'Khóa API Gemini chưa được cấu hình. Vui lòng thiết lập trong Cài đặt để kích hoạt phân tích AI.'
@@ -95,6 +97,7 @@ export default function AddItemPage() {
 
     try {
       const selectedModel = getSelectedGeminiModel();
+
       if (!selectedModel) {
         setAiAnalysisError(
           'Chưa chọn mô hình AI. Vui lòng vào Cài đặt và chọn mô hình Gemini để kích hoạt phân tích AI.'

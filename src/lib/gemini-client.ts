@@ -2,7 +2,6 @@ import { GoogleGenAI } from '@google/genai';
 import {
   getBestModelForUseCase,
   getModelInfo,
-  isValidModelSync,
   type GeminiModelInfo,
 } from './gemini-models';
 import {
@@ -90,14 +89,6 @@ export class GeminiClient {
     if (selectedModel) {
       this.selectedModel = selectedModel;
     }
-
-    // Validate the selected model if one is set
-    if (this.selectedModel && !isValidModelSync(this.selectedModel)) {
-      console.warn(
-        `Selected model "${this.selectedModel}" is not valid. Model will need to be set explicitly.`
-      );
-      this.selectedModel = null;
-    }
   }
 
   /**
@@ -166,13 +157,6 @@ export class GeminiClient {
     const validationError = this.validateConfiguration();
     if (validationError) {
       return validationError;
-    }
-
-    // Additional validation for sync model check
-    if (!isValidModelSync(this.selectedModel!)) {
-      return createErrorResponse(
-        `Selected model "${this.selectedModel}" is not supported or has been deprecated.`
-      );
     }
 
     try {
@@ -397,6 +381,8 @@ export class GeminiClient {
 
       const responseText = result.text || '';
 
+      console.log(responseText);
+
       try {
         const parsedResponse: AIAnalyzedFoodItem =
           parseAIJsonResponse(responseText);
@@ -407,9 +393,7 @@ export class GeminiClient {
           responseText,
           parseError
         );
-        return createErrorResponse(
-          'AI response could not be parsed. Please try again or enter manually.'
-        );
+        return createErrorResponse(responseText);
       }
     } catch (error: unknown) {
       return handleApiError(error, 'analyze food image');

@@ -31,7 +31,7 @@ interface FoodItemCardProps {
   onDelete: (id: string) => void;
 }
 
-export function FoodItemCard({ item, onDelete }: FoodItemCardProps) {
+export function FoodItemCard({ item, onDelete }: Readonly<FoodItemCardProps>) {
   const getExpirationStatus = (
     expirationDate: string
   ): {

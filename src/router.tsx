@@ -1,4 +1,4 @@
-import { createMemoryRouter } from 'react-router';
+import { createBrowserRouter, createMemoryRouter } from 'react-router';
 import App from './App';
 
 // Import pages
@@ -14,50 +14,53 @@ import SettingsPage from './views/settings/page';
 import ShoppingListPage from './views/shopping-list/page';
 
 // Create and export router
-export const router = createMemoryRouter([
-  {
-    path: '/',
-    element: <App />,
-    children: [
-      { index: true, element: <HomePage /> },
-      {
-        path: 'recipes',
-        children: [
-          {
-            index: true,
-            element: <RecipesPage />,
-          },
-          {
-            path: ':id',
-            element: <RecipeDetailPage />,
-          },
-          {
-            path: 'add',
-            element: <AddRecipePage />,
-          },
-        ],
-      },
-      {
-        path: 'inventory',
-        children: [
-          {
-            index: true,
-            element: <InventoryPage />,
-          },
-          { path: 'add', element: <AddItemPage /> },
-          { path: 'edit/:id', element: <AddItemPage /> },
-        ],
-      },
-      {
-        path: 'meal-planning',
-        children: [
-          { index: true, element: <MealPlanningPage /> },
-          { path: 'add', element: <AddMealPage /> },
-          { path: 'edit/:id', element: <AddMealPage /> },
-        ],
-      },
-      { path: 'shopping-list', element: <ShoppingListPage /> },
-      { path: 'settings', element: <SettingsPage /> },
-    ],
-  },
-]);
+
+const routerData = {
+  path: '/',
+  element: <App />,
+  children: [
+    { index: true, element: <HomePage /> },
+    {
+      path: 'recipes',
+      children: [
+        {
+          index: true,
+          element: <RecipesPage />,
+        },
+        {
+          path: ':id',
+          element: <RecipeDetailPage />,
+        },
+        {
+          path: 'add',
+          element: <AddRecipePage />,
+        },
+      ],
+    },
+    {
+      path: 'inventory',
+      children: [
+        {
+          index: true,
+          element: <InventoryPage />,
+        },
+        { path: 'add', element: <AddItemPage /> },
+        { path: 'edit/:id', element: <AddItemPage /> },
+      ],
+    },
+    {
+      path: 'meal-planning',
+      children: [
+        { index: true, element: <MealPlanningPage /> },
+        { path: 'add', element: <AddMealPage /> },
+        { path: 'edit/:id', element: <AddMealPage /> },
+      ],
+    },
+    { path: 'shopping-list', element: <ShoppingListPage /> },
+    { path: 'settings', element: <SettingsPage /> },
+  ],
+};
+
+export const router = import.meta.env.DEV
+  ? createBrowserRouter([routerData])
+  : createMemoryRouter([routerData]);
