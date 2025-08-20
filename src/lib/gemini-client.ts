@@ -43,6 +43,7 @@ export interface AIAnalyzedFoodItem {
   };
   keyIngredients: string[];
   category: string;
+  unit: string;
 }
 
 /**
