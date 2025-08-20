@@ -19,8 +19,8 @@ import { useSettings } from '@/hooks/use-settings';
 import { useUnits } from '@/hooks/use-units';
 import { GeminiClient, type AIAnalyzedFoodItem } from '@/lib/gemini-client';
 import { ArrowLeft, Info, Loader2, Sparkles } from 'lucide-react';
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router';
 
 export default function AddItemPage() {
   const navigate = useNavigate();
@@ -51,7 +51,32 @@ export default function AddItemPage() {
   const [aiGeneratedInfo, setAiGeneratedInfo] =
     useState<AIAnalyzedFoodItem | null>(null);
 
-  const { addItem } = useFoodItems();
+  const { items, refetch, addItem, updateItem } = useFoodItems();
+  const { id } = useParams();
+  const isEditMode = Boolean(id);
+
+  // Prefill form when editing and items are available
+  useEffect(() => {
+    if (!isEditMode) return;
+    if (items && items.length > 0) {
+      const existing = items.find(
+        (it) => String((it as { id: unknown }).id) === String(id)
+      );
+      if (existing) {
+        setFormData({
+          name: existing.name || '',
+          quantity: (existing.quantity as number) ?? 0,
+          unit: existing.unit || '',
+          expirationDate: existing.expiration_date || '',
+          category: existing.category || '',
+          imageUrl: existing.image_url || '',
+        });
+      } else {
+        // If not found try refetching
+        refetch();
+      }
+    }
+  }, [isEditMode, id, items, refetch]);
 
   const handleImageReadyForAI = async (
     base64Image: string,
@@ -146,19 +171,37 @@ export default function AddItemPage() {
     setErrors({});
 
     try {
-      await addItem({
-        name: formData.name,
-        quantity: formData.quantity, // Using the number directly
-        unit: formData.unit,
-        expiration_date: formData.expirationDate,
-        category: formData.category,
-        image_url: formData.imageUrl || undefined,
-      });
+      if (isEditMode && id) {
+        await updateItem({
+          id: String(id),
+          updates: {
+            name: formData.name,
+            quantity: formData.quantity,
+            unit: formData.unit,
+            expiration_date: formData.expirationDate,
+            category: formData.category,
+            image_url: formData.imageUrl || undefined,
+          },
+        });
+      } else {
+        await addItem({
+          name: formData.name,
+          quantity: formData.quantity, // Using the number directly
+          unit: formData.unit,
+          expiration_date: formData.expirationDate,
+          category: formData.category,
+          image_url: formData.imageUrl || undefined,
+        });
+      }
 
       navigate('/inventory');
     } catch (error) {
-      console.error('Failed to add item:', error);
-      alert('Không thể thêm mặt hàng. Vui lòng thử lại.');
+      console.error('Failed to save item:', error);
+      alert(
+        isEditMode
+          ? 'Không thể cập nhật mặt hàng. Vui lòng thử lại.'
+          : 'Không thể thêm mặt hàng. Vui lòng thử lại.'
+      );
     }
   };
 
@@ -172,7 +215,9 @@ export default function AddItemPage() {
                 <ArrowLeft className='w-4 h-4' />
               </Button>
             </Link>
-            <h1 className='text-xl font-bold text-gray-900'>Thêm thực phẩm</h1>
+            <h1 className='text-xl font-bold text-gray-900'>
+              {isEditMode ? 'Chỉnh sửa thực phẩm' : 'Thêm thực phẩm'}
+            </h1>
           </div>
         </div>
       </div>
@@ -452,7 +497,7 @@ export default function AddItemPage() {
               className='flex-1'
               disabled={aiAnalysisLoading}
             >
-              Thêm mặt hàng
+              {isEditMode ? 'Cập nhật' : 'Thêm mặt hàng'}
             </Button>
           </div>
         </form>

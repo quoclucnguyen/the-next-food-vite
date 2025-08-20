@@ -43,7 +43,10 @@ export default function InventoryPage() {
   const allCategories = Array.from(
     new Set([...allUserCategories, ...inventoryCategories])
   );
-  const categories = ['all', ...allCategories.sort()];
+  const sortedCategories = allCategories.sort((a, b) =>
+    (a ?? '').localeCompare(b ?? '', undefined, { sensitivity: 'base' })
+  );
+  const categories = ['all', ...sortedCategories];
 
   const handleDeleteItem = async (id: string) => {
     try {
