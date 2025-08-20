@@ -2,12 +2,19 @@ import { cn } from '@/lib/utils';
 
 import type React from 'react';
 
-import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Camera, Upload, X, ImageIcon, Loader2 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Image } from '@/components/ui/image';
+import { supabase } from '@/lib/supabase';
+import { Camera, ImageIcon, Loader2, Upload, X } from 'lucide-react';
+import { useRef, useState } from 'react';
 
 interface ImageUploadProps {
   currentImageUrl?: string;
@@ -27,7 +34,7 @@ export function ImageUpload({
   className = '',
   type,
   disabled = false,
-}: ImageUploadProps) {
+}: Readonly<ImageUploadProps>) {
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -219,20 +226,49 @@ export function ImageUpload({
       {displayImageUrl ? (
         <Card className='relative'>
           <CardContent className='p-2'>
-            <div className='relative aspect-video w-full overflow-hidden rounded-lg bg-gray-100'>
-              <Image
-                src={displayImageUrl || '/placeholder.svg'}
-                alt='Food item'
-                className='object-cover'
-                sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
-              />
-              {uploading && (
-                <div className='absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center'>
-                  <Loader2 className='w-6 h-6 text-white animate-spin' />
-                  <div className='text-white text-sm ml-2'>Uploading...</div>
+            <Dialog>
+              <DialogTrigger asChild>
+                <div className='relative aspect-video w-full overflow-hidden rounded-lg bg-gray-100 cursor-zoom-in'>
+                  <Image
+                    src={displayImageUrl || '/placeholder.svg'}
+                    alt='Food item'
+                    className='object-cover object-center'
+                    sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+                  />
+                  {uploading && (
+                    <div className='absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center'>
+                      <Loader2 className='w-6 h-6 text-white animate-spin' />
+                      <div className='text-white text-sm ml-2'>
+                        Uploading...
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </DialogTrigger>
+
+              <DialogContent className='max-w-3xl w-full'>
+                <DialogHeader>
+                  <DialogTitle>Ảnh</DialogTitle>
+                </DialogHeader>
+                <div className='flex justify-center items-center'>
+                  <Image
+                    src={displayImageUrl || '/placeholder.svg'}
+                    alt='Food item full size'
+                    className='object-contain max-h-[80vh] w-auto'
+                  />
+                </div>
+                <div className='mt-4 flex justify-end'>
+                  <a
+                    href={displayImageUrl}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='text-sm text-blue-600 underline'
+                  >
+                    Mở ảnh trong tab mới
+                  </a>
+                </div>
+              </DialogContent>
+            </Dialog>
             <Button
               variant='ghost'
               size='sm'
@@ -248,6 +284,17 @@ export function ImageUpload({
         <Card className='border-dashed border-2 border-gray-300 hover:border-gray-400 transition-colors'>
           <CardContent className='p-6'>
             <div
+              role='button'
+              tabIndex={disabled ? -1 : 0}
+              aria-disabled={disabled}
+              aria-label='Upload image'
+              onKeyDown={(e: React.KeyboardEvent) => {
+                if (disabled) return;
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  triggerFileInput();
+                }
+              }}
               className={cn(
                 'flex flex-col items-center justify-center text-center',
                 disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'

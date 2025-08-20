@@ -1,10 +1,3 @@
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Edit, Trash2 } from 'lucide-react';
-import { Image } from '@/components/ui/image';
-import { Link } from 'react-router';
-import { buttonVariants } from '@/lib/button-variants';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,6 +9,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Image } from '@/components/ui/image';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { buttonVariants } from '@/lib/button-variants';
+import { Edit, Trash2 } from 'lucide-react';
+import { Link } from 'react-router';
 
 interface FoodItemCardProps {
   item: {
@@ -53,6 +54,7 @@ export function FoodItemCard({ item, onDelete }: FoodItemCardProps) {
   };
 
   const expiration = getExpirationStatus(item.expiration_date);
+  const isMobile = useIsMobile();
 
   return (
     <Card>
@@ -105,36 +107,58 @@ export function FoodItemCard({ item, onDelete }: FoodItemCardProps) {
                 <Edit className='w-4 h-4' />
               </Button>
             </Link>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  className='h-8 w-8 p-0'
-                  aria-label={`Xóa ${item.name}`}
-                >
-                  <Trash2 className='w-4 h-4' />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Xóa thực phẩm?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Bạn có chắc chắn muốn xóa '{item.name}'? Hành động này
-                    không thể hoàn tác.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Hủy</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => onDelete(item.id)}
-                    className={`${buttonVariants({ variant: 'destructive' })} bg-red-700 hover:bg-red-800 text-white`}
+            {isMobile ? (
+              <Button
+                variant='ghost'
+                size='sm'
+                className='h-8 w-8 p-0'
+                aria-label={`Xóa ${item.name}`}
+                onClick={() => {
+                  if (
+                    confirm(
+                      `Xóa '${item.name}'? Hành động này không thể hoàn tác.`
+                    )
+                  ) {
+                    onDelete(item.id);
+                  }
+                }}
+              >
+                <Trash2 className='w-4 h-4' />
+              </Button>
+            ) : (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant='ghost'
+                    size='sm'
+                    className='h-8 w-8 p-0'
+                    aria-label={`Xóa ${item.name}`}
                   >
-                    Xóa
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+                    <Trash2 className='w-4 h-4' />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Xóa thực phẩm?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Bạn có chắc chắn muốn xóa '{item.name}'? Hành động này
+                      không thể hoàn tác.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Hủy</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => onDelete(item.id)}
+                      className={`${buttonVariants({
+                        variant: 'destructive',
+                      })} bg-red-700 hover:bg-red-800 text-white`}
+                    >
+                      Xóa
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </div>
         </div>
       </CardContent>
