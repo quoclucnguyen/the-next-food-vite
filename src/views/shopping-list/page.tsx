@@ -58,15 +58,20 @@ export default function ShoppingListPage() {
       const nextWeek = new Date();
       nextWeek.setDate(nextWeek.getDate() + 7);
 
-      const upcomingMeals = mealPlans.filter((plan) => {
+      // Filter meals: only include home cooking meals from upcoming week
+      const upcomingHomeMeals = mealPlans.filter((plan) => {
         const planDate = new Date(plan.date);
-        return planDate >= new Date() && planDate <= nextWeek;
+        return (
+          planDate >= new Date() &&
+          planDate <= nextWeek &&
+          plan.source === 'home'
+        );
       });
 
-      if (upcomingMeals.length === 0) {
-        toast.info('Không tìm thấy bữa ăn sắp tới', {
+      if (upcomingHomeMeals.length === 0) {
+        toast.info('Không tìm thấy bữa ăn nấu tại nhà sắp tới', {
           description:
-            'Thêm một số kế hoạch bữa ăn cho tuần tới để tạo danh sách mua sắm.',
+            'Thêm một số kế hoạch bữa ăn nấu tại nhà cho tuần tới để tạo danh sách mua sắm.',
         });
         return;
       }
@@ -75,31 +80,43 @@ export default function ShoppingListPage() {
         [key: string]: { quantity: number; unit: string; category: string };
       } = {};
 
-      upcomingMeals.forEach((meal) => {
-        const recipe = recipes.find((r) => r.id === meal.recipe_id);
-        if (recipe) {
-          recipe.ingredients.forEach((ingredient) => {
-            const parts = ingredient.split(' ');
-            const quantity = Number.parseFloat(parts[0]) || 1;
-            const unit = parts[1] || 'pieces';
-            const name = parts.slice(2).join(' ') || ingredient;
+      upcomingHomeMeals.forEach((meal) => {
+        // Process each dish in the meal
+        meal.dishes.forEach((dish) => {
+          // Only process home dishes (those with recipeId)
+          if ('recipeId' in dish) {
+            const recipe = recipes.find((r) => r.id === dish.recipeId);
+            if (recipe && recipe.ingredients) {
+              const servingsMultiplier = dish.servings || 1;
+              const baseServings = recipe.servings || 1;
+              const scaleFactor = servingsMultiplier / baseServings;
 
-            if (neededIngredients[name]) {
-              neededIngredients[name].quantity += quantity;
-            } else {
-              // Find the default category or use 'pantry' as fallback
-              const defaultCategory =
-                categories.find((cat) => cat.name === 'pantry')?.name ||
-                categories.find((cat) => cat.name === 'other')?.name ||
-                'other';
-              neededIngredients[name] = {
-                quantity,
-                unit,
-                category: defaultCategory,
-              };
+              recipe.ingredients.forEach((ingredient) => {
+                const parts = ingredient.split(' ');
+                const baseQuantity = Number.parseFloat(parts[0]) || 1;
+                const scaledQuantity = baseQuantity * scaleFactor;
+                const unit = parts[1] || 'pieces';
+                const name = parts.slice(2).join(' ') || ingredient;
+
+                if (neededIngredients[name]) {
+                  neededIngredients[name].quantity += scaledQuantity;
+                } else {
+                  // Find the default category or use 'pantry' as fallback
+                  const defaultCategory =
+                    categories.find((cat) => cat.name === 'pantry')?.name ||
+                    categories.find((cat) => cat.name === 'other')?.name ||
+                    'other';
+                  neededIngredients[name] = {
+                    quantity: scaledQuantity,
+                    unit,
+                    category: defaultCategory,
+                  };
+                }
+              });
             }
-          });
-        }
+          }
+          // Skip dining dishes - they don't contribute to shopping list
+        });
       });
 
       // Remove existing meal-plan items first
@@ -141,7 +158,7 @@ export default function ShoppingListPage() {
       }
 
       toast.success('Đã tạo danh sách mua sắm', {
-        description: `Đã thêm ${addedCount} mặt hàng từ kế hoạch bữa ăn của bạn.`,
+        description: `Đã thêm ${addedCount} mặt hàng từ kế hoạch bữa ăn nấu tại nhà của bạn.`,
       });
     } catch (error) {
       console.error('Failed to generate shopping list:', error);
@@ -242,7 +259,7 @@ export default function ShoppingListPage() {
                   className='bg-white hover:bg-gray-50 border-gray-200 text-gray-700 hover:text-gray-900 transition-colors'
                 >
                   <RefreshCw className='w-4 h-4 mr-2' />
-                  Tạo tự động
+                  Tạo từ bữa ăn nhà
                 </Button>
                 <AddShoppingItemDialog onAddItem={handleAddItem} />
               </div>
@@ -343,7 +360,7 @@ export default function ShoppingListPage() {
               <AddShoppingItemDialog onAddItem={handleAddItem} />
               <Button variant='outline' onClick={generateFromMealPlans}>
                 <RefreshCw className='w-4 h-4 mr-2' />
-                Tạo từ bữa ăn
+                Tạo từ bữa ăn nhà
               </Button>
             </div>
           </div>

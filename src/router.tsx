@@ -10,6 +10,7 @@ import MealPlanningPage from './views/meal-planning/page';
 import RecipeDetailPage from './views/recipes/[id]/page';
 import AddRecipePage from './views/recipes/add/page';
 import RecipesPage from './views/recipes/page';
+import RestaurantsPage from './views/restaurants/page';
 import SettingsPage from './views/settings/page';
 import ShoppingListPage from './views/shopping-list/page';
 
@@ -56,6 +57,7 @@ const routerData = {
         { path: 'edit/:id', element: <AddMealPage /> },
       ],
     },
+    { path: 'restaurants', element: <RestaurantsPage /> },
     { path: 'shopping-list', element: <ShoppingListPage /> },
     { path: 'settings', element: <SettingsPage /> },
   ],

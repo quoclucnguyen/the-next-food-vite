@@ -8,6 +8,7 @@ import {
   Package,
   Settings,
   ShoppingCart,
+  Utensils,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router';
@@ -29,6 +30,7 @@ export function AppNavigation({ onExpandedChange }: AppNavigationProps) {
     { href: '/', icon: Home, label: 'Trang chủ' },
     { href: '/inventory', icon: Package, label: 'Kho' },
     { href: '/meal-planning', icon: Calendar, label: 'Bữa ăn' },
+    { href: '/restaurants', icon: Utensils, label: 'Nhà hàng' },
     { href: '/recipes', icon: ChefHat, label: 'Công thức' },
     { href: '/shopping-list', icon: ShoppingCart, label: 'Mua sắm' },
     { href: '/settings', icon: Settings, label: 'Cài đặt' },

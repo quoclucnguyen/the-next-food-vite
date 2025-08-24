@@ -1,15 +1,30 @@
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { EditMealDialog, MealCell } from '@/components/meal-planning';
 import { useMealPlans } from '@/hooks/use-meal-plans';
 import { useRecipes } from '@/hooks/use-recipes';
-import { CalendarIcon, ChefHat, Plus } from 'lucide-react';
+import type { MealPlan } from '@/types/meal-planning';
+import { CalendarIcon, ChefHat, Plus, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router';
 
 export default function MealPlanningPage() {
   const [currentWeek, setCurrentWeek] = useState(new Date());
-  const { mealPlans, deleteMealPlan } = useMealPlans();
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingMeal, setEditingMeal] = useState<MealPlan | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [mealToDelete, setMealToDelete] = useState<MealPlan | null>(null);
+  const { mealPlans, loading, deleteMealPlan } = useMealPlans();
   const { recipes } = useRecipes();
 
   const getWeekDates = (startDate: Date) => {
@@ -30,13 +45,6 @@ export default function MealPlanningPage() {
   const weekDates = getWeekDates(currentWeek);
   const mealTypes = ['breakfast', 'lunch', 'dinner'] as const;
 
-  // Vietnamese translations for meal types
-  const mealTypeLabels = {
-    breakfast: 'Sáng',
-    lunch: 'Trưa',
-    dinner: 'Tối',
-  } as const;
-
   const getMealForDateAndType = (date: Date, mealType: string) => {
     const dateString = date.toISOString().split('T')[0];
     const plan = mealPlans.find(
@@ -51,11 +59,33 @@ export default function MealPlanningPage() {
       : null;
   };
 
-  const handleDeleteMeal = async (mealId: string) => {
-    try {
-      await deleteMealPlan(mealId);
-    } catch (error) {
-      console.error('Không thể xóa bữa ăn:', error);
+  const handleEditMeal = (meal: MealPlan) => {
+    setEditingMeal(meal);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleAddMeal = () => {
+    setEditingMeal(null);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleDeleteMealConfirm = (mealId: string) => {
+    const meal = mealPlans.find((m) => m.id === mealId);
+    if (meal) {
+      setMealToDelete(meal);
+      setDeleteDialogOpen(true);
+    }
+  };
+
+  const confirmDeleteMeal = async () => {
+    if (mealToDelete) {
+      try {
+        await deleteMealPlan(mealToDelete.id);
+        setDeleteDialogOpen(false);
+        setMealToDelete(null);
+      } catch (error) {
+        console.error('Không thể xóa bữa ăn:', error);
+      }
     }
   };
 
@@ -78,27 +108,40 @@ export default function MealPlanningPage() {
 
             {/* Mobile action button */}
             <div className='flex sm:hidden'>
-              <Link to='/meal-planning/add'>
-                <Button
-                  size='sm'
-                  className='bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
-                >
+              <Button
+                size='sm'
+                onClick={handleAddMeal}
+                disabled={loading}
+                className='bg-blue-600 hover:bg-blue-700 text-white shadow-sm disabled:opacity-50'
+              >
+                {loading ? (
+                  <Loader2 className='w-4 h-4 animate-spin' />
+                ) : (
                   <Plus className='w-4 h-4' />
-                </Button>
-              </Link>
+                )}
+              </Button>
             </div>
 
             {/* Desktop action button */}
             <div className='hidden sm:flex'>
-              <Link to='/meal-planning/add'>
-                <Button
-                  size='sm'
-                  className='bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
-                >
-                  <Plus className='w-4 h-4 mr-2' />
-                  Thêm bữa ăn
-                </Button>
-              </Link>
+              <Button
+                size='sm'
+                onClick={handleAddMeal}
+                disabled={loading}
+                className='bg-blue-600 hover:bg-blue-700 text-white shadow-sm disabled:opacity-50'
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className='w-4 h-4 mr-2 animate-spin' />
+                    Đang tải...
+                  </>
+                ) : (
+                  <>
+                    <Plus className='w-4 h-4 mr-2' />
+                    Thêm bữa ăn
+                  </>
+                )}
+              </Button>
             </div>
           </div>
 
@@ -133,75 +176,69 @@ export default function MealPlanningPage() {
       </div>
 
       <div className='p-4'>
-        <div className='space-y-4'>
-          {weekDates.map((date) => (
-            <Card key={date.toISOString()}>
-              <CardHeader className='pb-3'>
-                <CardTitle className='text-lg flex items-center gap-2'>
-                  <CalendarIcon className='w-5 h-5' />
-                  {date.toLocaleDateString('vi-VN', {
-                    weekday: 'long',
-                    month: 'short',
-                    day: 'numeric',
-                  })}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className='space-y-3'>
-                  {mealTypes.map((mealType) => {
-                    const meal = getMealForDateAndType(date, mealType);
-                    return (
-                      <div
-                        key={mealType}
-                        className='flex items-center justify-between p-3 bg-gray-50 rounded-lg'
-                      >
-                        <div className='flex items-center gap-3'>
-                          <Badge variant='outline' className='capitalize'>
-                            {mealTypeLabels[mealType]}
-                          </Badge>
-                          {meal ? (
-                            <span className='font-medium'>
-                              {meal.recipeName}
-                            </span>
-                          ) : (
-                            <span className='text-gray-500'>
-                              Chưa lên kế hoạch bữa ăn
-                            </span>
-                          )}
-                        </div>
-                        <div className='flex gap-2'>
-                          {meal ? (
-                            <>
-                              <Button
-                                variant='ghost'
-                                size='sm'
-                                onClick={() => handleDeleteMeal(meal.id)}
-                              >
-                                Xóa
-                              </Button>
-                            </>
-                          ) : (
-                            <Link
-                              to={`/meal-planning/add?date=${
-                                date.toISOString().split('T')[0]
-                              }&meal=${mealType}`}
-                            >
-                              <Button variant='ghost' size='sm'>
-                                <Plus className='w-4 h-4' />
-                              </Button>
-                            </Link>
-                          )}
-                        </div>
+        {loading ? (
+          <div className='space-y-4'>
+            {weekDates.map((date) => (
+              <Card key={date.toISOString()}>
+                <CardHeader className='pb-3'>
+                  <CardTitle className='text-lg flex items-center gap-2'>
+                    <CalendarIcon className='w-5 h-5' />
+                    {date.toLocaleDateString('vi-VN', {
+                      weekday: 'long',
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className='space-y-3'>
+                    {mealTypes.map((mealType) => (
+                      <div key={mealType} className='animate-pulse'>
+                        <div className='h-16 bg-gray-200 rounded-lg'></div>
                       </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className='space-y-4'>
+            {weekDates.map((date) => (
+              <Card key={date.toISOString()}>
+                <CardHeader className='pb-3'>
+                  <CardTitle className='text-lg flex items-center gap-2'>
+                    <CalendarIcon className='w-5 h-5' />
+                    {date.toLocaleDateString('vi-VN', {
+                      weekday: 'long',
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className='space-y-3'>
+                    {mealTypes.map((mealType) => {
+                      const meal = getMealForDateAndType(date, mealType);
+                      return (
+                        <MealCell
+                          key={mealType}
+                          meal={meal}
+                          mealType={mealType}
+                          date={date}
+                          onEdit={handleEditMeal}
+                          onDelete={handleDeleteMealConfirm}
+                        />
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
 
-        {recipes.length === 0 && (
+        {!loading && recipes.length === 0 && (
           <Card className='mt-6'>
             <CardContent className='text-center py-8'>
               <ChefHat className='w-12 h-12 text-gray-400 mx-auto mb-4' />
@@ -221,6 +258,38 @@ export default function MealPlanningPage() {
           </Card>
         )}
       </div>
+
+      {/* Edit Meal Dialog */}
+      <EditMealDialog
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        mealPlan={editingMeal}
+        existingMealPlans={mealPlans}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận xóa bữa ăn</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xóa bữa ăn này không? Hành động này không
+              thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeleteDialogOpen(false)}>
+              Hủy
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteMeal}
+              className='bg-red-600 hover:bg-red-700'
+            >
+              Xóa
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
