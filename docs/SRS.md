@@ -6,7 +6,7 @@
 This Software Requirements Specification defines the functional and non-functional requirements for The Next Food web application. It serves engineering, product, QA, and operations teams as the baseline for planning, implementation, testing, and deployment.
 
 ### 1.2 Scope
-The Next Food is a React-based web platform that helps households manage food inventory, plan meals, discover AI-assisted recipes, and generate smart shopping lists. The scope includes user authentication, inventory tracking, recipe management, meal planning, shopping list generation, AI-assisted features, and supporting configuration and analytics.
+The Next Food is a React-based web platform that helps households manage household inventory (food items, date-tracked consumables, and durable assets), plan meals, discover AI-assisted recipes, and generate smart shopping lists. The scope includes user authentication, inventory tracking across the three modules, recipe management, meal planning, shopping list generation, AI-assisted features, and supporting configuration and analytics.
 
 ### 1.3 Definitions, Acronyms, and Abbreviations
 - **AI**: Artificial Intelligence (Google Gemini integration).
@@ -34,7 +34,7 @@ The Next Food is a greenfield SPA running on modern browsers and backed by Supab
 
 ### 2.2 Product Functions
 - Authentication and household onboarding
-- Inventory CRUD with barcode scanning, media uploads, expiration tracking
+- Inventory CRUD across food, date-tracked consumables, and durable assets with barcode scanning, media uploads, expiration/maintenance tracking
 - Recipe cataloging with AI-assisted suggestions
 - Meal planning calendar with inventory-aware recommendations
 - Smart shopping lists derived from meal plans and inventory gaps
@@ -82,11 +82,60 @@ Each feature includes description, priority, triggers, preconditions, basic flow
 
 ### 3.2 Inventory Management
 - **Priority**: High
-- **Description**: Create, read, update, delete food items with quantities, units, expiration, category, storage location, and optional photo.
-- **Preconditions**: Authenticated user; inventory table accessible.
-- **Flow**: Add item manual or barcode → optional AI auto-fill → confirm details → stored in Supabase.
+- **Description**: Manage household inventory across three modules—Food Inventory, Household Consumables (date-tracked), and Household Assets (non-date)—with shared UX patterns and module-specific fields.
+- **Preconditions**: Authenticated user; inventory tables accessible per module via Supabase RLS.
+- **Flow**: Add item manually or via barcode/AI intake → confirm details within the relevant module → persist to Supabase with optimistic cache updates.
 - **Alternate**: Bulk import via CSV (future), offline caching (future).
-- **Non-functional**: Validation for units/dates; operations <1s with cached data; optimistic updates with React Query.
+- **Non-functional**: Validation for units/dates, consistent category taxonomies, sub-second mutations using React Query cache.
+
+#### 3.2.1 Food Inventory (Existing)
+- Scope: All edible items and beverages already supported by current implementation.
+- Key fields: `name`, `quantity`, `unit`, `expiration_date`, `category`, `storage_location`, `image_url`.
+- Status: Production-ready with AI-assisted intake and expiration surfacing.
+
+#### 3.2.2 Household Consumables (Date-tracked)
+- Scope: Non-food supplies that ship with manufacturer best-before, replacement, or inspection dates (cleaning chemicals, safety gear, filters, medications).
+- Key fields: `name`, `quantity`, `unit`, `category`, `storage_location`, `replacement_date`, `reminder_lead_time`, optional receipt/label attachment.
+- Status: Planned module; see `docs/design/household-inventory.md` for UX and data outline.
+
+#### 3.2.3 Household Assets (Non-date)
+- Scope: Durable goods without formal expiration (appliances, tools, electronics, furniture, hobby gear).
+- Key fields: `name`, `category`, `location`, `owner`, `purchase_details`, `serial_number`, optional warranty/maintenance notes.
+- Status: Planned module; prioritizes quick lookup, search facets, and attachment storage for manuals/receipts.
+
+#### 3.2.4 Item Coverage Reference
+The consumables and assets modules explicitly exclude cosmetics and clothing (and related accessories) per product decision.
+
+**Items with lifecycle dates**
+- Fresh produce, meat, seafood, deli items, and prepared meals
+- Dairy, eggs, and refrigerated beverages
+- Frozen foods and long-term pantry staples (canned goods, grains, sauces, baking ingredients)
+- Baby food, infant formula, and toddler snacks
+- Pet food, treats, and supplements
+- Prescription medication, over-the-counter medicine, vitamins, and supplements
+- First-aid supplies (antiseptics, ointments, bandages, sterile pads)
+- Cleaning and laundry chemicals (disinfectant, bleach, descalers, detergents)
+- Water, HVAC, and air purifier filters or cartridges
+- Fire extinguishers, smoke/CO detector sensors, and emergency lighting batteries
+- Single-use and rechargeable batteries with manufacturer shelf lives
+- Pest control, garden chemicals, and pool maintenance supplies
+- Propane tanks, fuel canisters, and camp stove gas with recertification dates
+- Vehicle and household safety kits (flares, first-aid, emergency rations)
+- Documents requiring renewal (passports, IDs, vehicle registration, insurance papers)
+
+**Items without lifecycle dates**
+- Major appliances (refrigerator, washer, dryer) and small kitchen appliances (blender, toaster, air fryer)
+- Cookware, bakeware, tableware, and reusable storage containers
+- Furniture (sofa, dining table, shelving) and home décor (lamps, mirrors, artwork)
+- Consumer electronics (TV, laptop, tablets, smart speakers, gaming consoles)
+- Home office equipment (printer, router, modem, UPS) and networking accessories
+- Hand and power tools, hardware assortments, and tool storage systems
+- Outdoor and garden equipment (lawn mower, hedge trimmer, grill, patio furniture)
+- Sports, fitness, and recreational gear (bicycles, weights, yoga mats, board games)
+- Musical instruments, audio equipment, and recording accessories
+- Baby gear (crib, stroller, car seat, monitors) and pet accessories (carriers, leashes, feeders)
+- Cleaning equipment (vacuum, steam mop, broom), storage bins, and organizers
+- Books, reference binders, photo albums, and hobby/craft supplies
 
 ### 3.3 Recipe Management & AI Suggestions
 - **Priority**: High

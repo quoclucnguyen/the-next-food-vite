@@ -11,21 +11,34 @@
 - **AI Spotlight**: Gemini-generated suggestions tailored to your inventory.
 
 ## 3. Inventory Management
-### Add Item
-1. Navigate to `Inventory` tab.
-2. Tap `+` (mobile) or `Add Item` button.
-3. Optionally scan barcode (coming soon) or fill fields manually.
-4. Set quantity, unit, storage location, expiration date.
-5. Upload a photo if desired.
-6. Save to update inventory instantly.
+The Inventory hub is being expanded to expose three parallel modules so you can track food, date-driven household consumables, and durable assets without crossing data. Food inventory is live today; the consumables and assets modules are rolling out next. Use the tabs at the top of the Inventory page (when enabled) to switch modules—each module remembers its own filters and sorting.
 
-### Edit or Consume Item
-- Tap item card → `Edit` to adjust quantity or details.
-- Use `Consume` action to decrement quantity; item auto-removes when zero.
+> Cosmetics, clothing, and clothing accessories are intentionally out of scope for every module.
+
+### Food Inventory (Existing)
+1. Open the `Food` tab inside Inventory.
+2. Tap `+` (mobile) or `Add Item` (desktop) to create a record.
+3. Scan a barcode (coming soon) or fill in name, quantity, unit, storage location, and expiration date.
+4. Upload a photo if desired, then save to update the list instantly.
+5. To edit or consume an item, open its card and use `Edit` or `Consume` as before.
+
+### Household Consumables (Date-tracked)
+1. Switch to the `Consumables` tab once the feature flag is enabled for your household.
+2. Use `Add Consumable` to capture supplies such as filters, medication, or cleaning chemicals.
+3. Provide quantity/unit when relevant and set a `Replacement Date` plus optional reminder lead time.
+4. Attach label photos or receipts so the AI helper can prefill fields on future entries.
+5. Items move to the "Attention" filter automatically as their replacement date approaches.
+
+### Household Assets (Non-date)
+1. Switch to the `Assets` tab once available.
+2. Click `Add Asset` to register durable goods (appliances, tools, electronics, furniture, hobby gear).
+3. Record location, owner, purchase info, serial number, and any warranty notes.
+4. Upload manuals or receipts so the asset card becomes a one-stop reference.
+5. Use the `Archive` action when an asset leaves the household; history remains for reports.
 
 ### Filters & Search
-- Filter by category, storage location, or expiration window.
-- Use search bar to find items by name.
+- Each module supports search by name and module-specific filters (category, location, upcoming replacements, owner).
+- Saved filter sets will be stored per module so you can jump between food, consumables, and assets without losing context as the rollout completes.
 
 ## 4. Recipes
 ### Saved Recipes

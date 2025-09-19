@@ -13,6 +13,7 @@
 - [ ] Social login providers _(Planned)_
 
 ## 2. Inventory Management
+### Food Inventory (Existing)
 - [x] Manual item creation with validation (name, quantity, unit)
 - [x] Edit & delete inventory items with optimistic UI updates
 - [x] Expiration badges & status indicators on item cards
@@ -23,6 +24,20 @@
 - [ ] Barcode scanning workflow _(Not Started)_
 - [ ] Expiration alerts & notifications _(Not Started)_
 - [ ] Inventory analytics dashboard _(Not Started)_
+
+### Household Consumables (Date-tracked)
+- [ ] Data model extension for non-food consumables with best-before dates _(Planned)_
+- [ ] Consumables module UI scaffold (list, filters, detail) _(Not Started)_
+- [ ] Shared alerting rules for filters, chemicals, safety gear _(Not Started)_
+- [ ] AI-assisted intake for receipts/labels _(Planned)_
+- [ ] Documentation of coverage (`docs/design/household-inventory.md`) _(Completed)_
+
+### Household Assets (Non-date)
+- [ ] Durable goods inventory module (appliances, tools, equipment) _(Planned)_
+- [ ] Location/owner tagging and search facets _(Not Started)_
+- [ ] Maintenance reminder hooks (battery swap, service logs) _(Planned)_
+- [ ] Attachment support for manuals & receipts _(Planned)_
+- [ ] Asset overview dashboard _(Not Started)_
 
 ## 3. Recipe Management & AI Assistance
 - [x] Manual recipe entry (ingredients, steps, metadata)

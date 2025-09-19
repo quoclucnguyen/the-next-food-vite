@@ -12,11 +12,12 @@
 
 ### Inventory Management ✅
 
-- **Item Entry**: Manual item addition with form validation
+- **Food Item Entry**: Manual food item addition with form validation
 - **Item Display**: Food item cards with expiration status indicators
 - **Categories**: Basic categorization system for food items
 - **Image Upload**: Photo capture and storage for inventory items
-- **CRUD Operations**: Full create, read, update, delete functionality for inventory items
+- **CRUD Operations**: Full create, read, update, delete functionality for food inventory items
+- **Documentation**: Design blueprint drafted for consumables and asset modules (`docs/design/household-inventory.md`)
 
 ### Recipe Management ✅
 
@@ -50,6 +51,9 @@
 - **Quantity Tracking**: Better quantity management with units and measurements
 - **Batch Operations**: Select and modify multiple items at once
 - **Inventory Analytics**: Charts and insights about food consumption patterns
+- **Consumables Module**: Build date-tracked consumables CRUD, alerts, and UI
+- **Assets Module**: Build durable goods inventory with location/owner tagging and attachments
+- **Cross-Module Navigation**: Implement tabbed inventory navigation with feature flags
 
 #### Advanced Meal Planning
 
@@ -107,6 +111,7 @@
 ## Completed Today
 
 - Memory Bank documentation refreshed and synchronized with repository state (commit `9c885c6031b7137163acaa1dd97d80f19f61b893`) — completed 2025-08-20 20:27 (UTC+7).
+- Added comprehensive documentation for household consumables/assets expansion (checklist, SRS scope, user manual, design doc).
 
 ## Known Issues
 
@@ -128,6 +133,7 @@
 ### Week 1-2: Completed / In Progress
 
 - [x] Complete Memory Bank documentation setup (completed 2025-08-20)
+- [x] Document multi-module inventory plan (`docs/design/household-inventory.md`)
 - [ ] Test Memory Bank functionality with Cline
 - [ ] Refine documentation based on usage
 

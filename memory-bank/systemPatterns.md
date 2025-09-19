@@ -75,9 +75,11 @@ App
 │ │ ├── UserMenu
 │ │ └── PageContent
 │ │ ├── HomePage
-│ │ ├── InventoryPage
+│ │ ├── InventoryPage (Food module)
 │ │ │ ├── FoodItemCard[]
 │ │ │ └── AddItemDialog / AddItemPage
+│ │ ├── InventoryConsumablesPage (planned, date-tracked)
+│ │ ├── InventoryAssetsPage (planned, non-date)
 │ │ ├── RecipesPage
 │ │ │ ├── RecipeCard[]
 │ │ │ └── RecipeSuggestions
@@ -103,10 +105,11 @@ Currently-open files (active focus)
 
 ### Inventory Management Flow
 
-1. Add item (manual or barcode) → AddItemDialog / AddItemPage
+1. Add item (manual or barcode) → AddItemDialog / AddItemPage (food)
 2. ImageUpload handles media
-3. useInventoryItems hook manages API calls and cache updates
+3. useFoodItems hook manages API calls and cache updates
 4. FoodItemCard displays item with expiration status
+5. Planned: parallel flows for consumables (`useConsumables`, replacement alerts) and assets (`useAssets`, maintenance logs) following the same pattern (see `docs/design/household-inventory.md`).
 
 ### Recipe Suggestion Flow
 
@@ -122,6 +125,7 @@ Currently-open files (active focus)
 ## Database Schema Patterns
 
 - inventory_items, recipes, recipe_ingredients, meal_plans, shopping_lists, shopping_list_items
+- Planned tables: consumable_items (date-tracked) and household_assets (non-date) with shared category/location tables
 - RLS policies applied to ensure user isolation
 
 ## Performance & Security Patterns
@@ -133,4 +137,4 @@ Currently-open files (active focus)
 ## Notes
 
 - File refreshed to reflect repository state at commit `9c885c6031b7137163acaa1dd97d80f19f61b893` (2025-08-20 20:27 UTC+7).
-- System patterns documented to guide development and onboarding.
+- System patterns documented to guide development and onboarding; see `docs/design/household-inventory.md` for multi-module inventory blueprint (added 2025-08-20).
