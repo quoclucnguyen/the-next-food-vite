@@ -66,34 +66,25 @@ UI Update ← Component ← Cache ← Response ← API ← Query Result
 
 ## Component Relationships
 
-Current component hierarchy (high level):
+High-level hierarchy (inventory focus):
 
 App
 ├── AuthWrapper
 │ ├── AppLayout
 │ │ ├── Navigation (BottomNav)
-│ │ ├── UserMenu
-│ │ └── PageContent
-│ │ ├── HomePage
-│ │ ├── InventoryPage (Food module)
-│ │ │ ├── FoodItemCard[]
-│ │ │ └── AddItemDialog / AddItemPage
-│ │ ├── InventoryConsumablesPage (planned, date-tracked)
-│ │ ├── InventoryAssetsPage (planned, non-date)
-│ │ ├── RecipesPage
-│ │ │ ├── RecipeCard[]
-│ │ │ └── RecipeSuggestions
-│ │ ├── MealPlanningPage
-│ │ └── ShoppingListPage
-│ └── QueryProvider
-└── Toaster (Global notifications)
-
-Currently-open files (active focus)
-
-- src/views/inventory/add/page.tsx
-- src/views/inventory/page.tsx
-- src/components/layouts/AppLayout.tsx
-- src/components/bottom-nav.tsx
+│ │ ├── PageContent
+│ │ │ ├── HomePage
+│ │ │ ├── Inventory
+│ │ │ │ ├── Food module (`src/views/inventory/page.tsx`, add flow in `src/views/inventory/add/*`)
+│ │ │ │ ├── Cosmetics module (`src/views/cosmetics/page.tsx`, add flow in `src/views/cosmetics/add/*`)
+│ │ │ │ ├── Consumables module (planned)
+│ │ │ │ └── Assets module (planned)
+│ │ │ ├── RecipesPage / RecipeDetailPage / RecipeAddPage
+│ │ │ ├── MealPlanningPage (+ add/edit routes)
+│ │ │ ├── ShoppingListPage
+│ │ │ └── SettingsPage
+│ └── QueryProvider (React Query)
+└── Toaster (global notifications)
 
 ## Critical Implementation Paths
 
@@ -109,7 +100,8 @@ Currently-open files (active focus)
 2. ImageUpload handles media
 3. useFoodItems hook manages API calls and cache updates
 4. FoodItemCard displays item with expiration status
-5. Planned: parallel flows for consumables (`useConsumables`, replacement alerts) and assets (`useAssets`, maintenance logs) following the same pattern (see `docs/design/household-inventory.md`).
+5. Cosmetics module mirrors this flow with `useCosmetics` + subhooks, modular add form components (`src/views/cosmetics/add/components/*`), quick actions, and reminder tables for PAO tracking.
+6. Planned: consumables (`useConsumables`, replacement alerts) and assets (`useAssets`, maintenance logs) will reuse the cosmetics/food pattern (see `docs/design/household-inventory.md`).
 
 ### Recipe Suggestion Flow
 
@@ -136,5 +128,5 @@ Currently-open files (active focus)
 
 ## Notes
 
-- File refreshed to reflect repository state at commit `9c885c6031b7137163acaa1dd97d80f19f61b893` (2025-08-20 20:27 UTC+7).
-- System patterns documented to guide development and onboarding; see `docs/design/household-inventory.md` for multi-module inventory blueprint (added 2025-08-20).
+- File refreshed to reflect repository state at commit `9c885c6031b7137163acaa1dd97d80f19f61b893` (2025-08-22 11:10 UTC+7).
+- Cosmetics module now serves as live reference for parallel inventory feature build-out; use it when scaffolding consumables/assets experiences.

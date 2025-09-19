@@ -129,9 +129,9 @@ pnpm run lint
 
 - src/components — UI and shared components
 - src/components/layouts — AppLayout, navigation, bottom-nav
-- src/hooks — custom hooks (useInventoryItems, useRecipes, useMealPlans)
+- src/hooks — custom hooks (`useFoodItems`, `useCosmetics`, `useCosmeticEvents`, `useCosmeticReminders`, etc.)
 - src/lib — clients (gemini, supabase) and utils
-- src/views — page-level components (inventory, recipes, meal-planning, shopping-list)
+- src/views — page-level components (inventory, cosmetics, recipes, meal-planning, shopping-list)
 - src/test — test setup and utilities
 
 ## Technical Constraints & Notes
@@ -140,9 +140,10 @@ pnpm run lint
 - Image uploads limited by Supabase storage limits; keep images optimized.
 - Gemini API usage has rate and quota limits — implement retry/backoff.
 - Supabase rate limits depend on plan; implement caching and debounce where appropriate.
+- Cosmetics tables (`cosmetics`, `cosmetic_events`, `cosmetic_reminders`) created via migration; keep schema updates in migrations and reflect typings in `src/lib/supabase.ts`.
 - Keep secrets out of source; use environment variables and CI secrets.
 
 ## Repository Metadata
 
 - Synced to commit: `9c885c6031b7137163acaa1dd97d80f19f61b893`
-- Last refreshed: 2025-08-20 20:27 (UTC+7)
+- Last refreshed: 2025-08-22 11:10 (UTC+7)

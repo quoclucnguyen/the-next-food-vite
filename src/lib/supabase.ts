@@ -206,6 +206,135 @@ export type Database = {
           updated_at?: string;
         };
       };
+      cosmetics: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          brand: string | null;
+          category_id: string | null;
+          size: number | null;
+          unit: string | null;
+          batch_code: string | null;
+          purchase_date: string | null;
+          opened_at: string | null;
+          expiry_date: string | null;
+          pao_months: number | null;
+          dispose_at: string | null;
+          status: 'active' | 'warning' | 'expired' | 'discarded' | 'archived';
+          notes: string | null;
+          image_url: string | null;
+          last_usage_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          brand?: string | null;
+          category_id?: string | null;
+          size?: number | null;
+          unit?: string | null;
+          batch_code?: string | null;
+          purchase_date?: string | null;
+          opened_at?: string | null;
+          expiry_date?: string | null;
+          pao_months?: number | null;
+          dispose_at?: string | null;
+          status?: 'active' | 'warning' | 'expired' | 'discarded' | 'archived';
+          notes?: string | null;
+          image_url?: string | null;
+          last_usage_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          brand?: string | null;
+          category_id?: string | null;
+          size?: number | null;
+          unit?: string | null;
+          batch_code?: string | null;
+          purchase_date?: string | null;
+          opened_at?: string | null;
+          expiry_date?: string | null;
+          pao_months?: number | null;
+          dispose_at?: string | null;
+          status?: 'active' | 'warning' | 'expired' | 'discarded' | 'archived';
+          notes?: string | null;
+          image_url?: string | null;
+          last_usage_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      cosmetic_events: {
+        Row: {
+          id: string;
+          cosmetic_id: string;
+          user_id: string;
+          event_type: 'opened' | 'usage' | 'discarded' | 'restocked' | 'note';
+          payload: Json;
+          occurred_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          cosmetic_id: string;
+          user_id: string;
+          event_type: 'opened' | 'usage' | 'discarded' | 'restocked' | 'note';
+          payload?: Json;
+          occurred_at?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          cosmetic_id?: string;
+          user_id?: string;
+          event_type?: 'opened' | 'usage' | 'discarded' | 'restocked' | 'note';
+          payload?: Json;
+          occurred_at?: string;
+          created_at?: string;
+        };
+      };
+      cosmetic_reminders: {
+        Row: {
+          id: string;
+          cosmetic_id: string;
+          user_id: string;
+          remind_at: string;
+          status: 'pending' | 'sent' | 'dismissed' | 'snoozed';
+          snoozed_until: string | null;
+          metadata: Json;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          cosmetic_id: string;
+          user_id: string;
+          remind_at: string;
+          status?: 'pending' | 'sent' | 'dismissed' | 'snoozed';
+          snoozed_until?: string | null;
+          metadata?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          cosmetic_id?: string;
+          user_id?: string;
+          remind_at?: string;
+          status?: 'pending' | 'sent' | 'dismissed' | 'snoozed';
+          snoozed_until?: string | null;
+          metadata?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
       categories: {
         Row: {
           id: string;

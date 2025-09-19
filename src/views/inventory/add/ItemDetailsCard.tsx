@@ -24,7 +24,7 @@ export default function ItemDetailsCard({
   categoriesLoading,
   todayStr,
   QUANTITY_MAX,
-}: {
+}: Readonly<{
   control: Control<InventoryFormValues>;
   units: { id: string | number; name: string; display_name: string }[];
   unitsLoading: boolean;
@@ -32,7 +32,7 @@ export default function ItemDetailsCard({
   categoriesLoading: boolean;
   todayStr: string;
   QUANTITY_MAX: number;
-}) {
+}>) {
   return (
     <div>
       <div className='card'>

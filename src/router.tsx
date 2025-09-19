@@ -5,6 +5,8 @@ import App from './App';
 import HomePage from './views/HomePage';
 import AddItemPage from './views/inventory/add/page';
 import InventoryPage from './views/inventory/page';
+import CosmeticsPage from './views/cosmetics/page';
+import CosmeticEditorPage from './views/cosmetics/add/page';
 import AddMealPage from './views/meal-planning/add/page';
 import MealPlanningPage from './views/meal-planning/page';
 import RecipeDetailPage from './views/recipes/[id]/page';
@@ -45,6 +47,9 @@ const routerData = {
           index: true,
           element: <InventoryPage />,
         },
+        { path: 'cosmetics', element: <CosmeticsPage /> },
+        { path: 'cosmetics/add', element: <CosmeticEditorPage /> },
+        { path: 'cosmetics/edit/:id', element: <CosmeticEditorPage /> },
         { path: 'add', element: <AddItemPage /> },
         { path: 'edit/:id', element: <AddItemPage /> },
       ],

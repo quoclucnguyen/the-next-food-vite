@@ -6,6 +6,7 @@
 - Components: `src/components/` and design system in `src/components/ui/`.
 - State/hooks: `src/hooks/` (`use-*.ts`), utilities/API: `src/lib/`, types: `src/types/`.
 - Static assets: `public/` and `src/assets/`. Entry: `src/main.tsx`, router in `src/router.tsx`.
+- Cosmetics inventory module: list view at `src/views/cosmetics/page.tsx`; add/edit flow centered on `src/views/cosmetics/add/page.tsx` with shared pieces in `src/views/cosmetics/add/components/`, plus co-located `constants.ts`, `types.ts`, and `utils.ts`.
 
 ## Build, Test, and Development Commands
 - `pnpm dev`: Start Vite dev server with HMR.

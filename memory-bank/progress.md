@@ -17,6 +17,7 @@
 - **Categories**: Basic categorization system for food items
 - **Image Upload**: Photo capture and storage for inventory items
 - **CRUD Operations**: Full create, read, update, delete functionality for food inventory items
+- **Cosmetics Module (MVP)**: Supabase tables (`cosmetics`, `cosmetic_events`, `cosmetic_reminders`), React Query hooks, cosmetics dashboard with quick actions/reminders, and modular add/edit flow (`src/views/cosmetics/*`).
 - **Documentation**: Design blueprint drafted for consumables and asset modules (`docs/design/household-inventory.md`)
 
 ### Recipe Management ✅
@@ -54,6 +55,7 @@
 - **Consumables Module**: Build date-tracked consumables CRUD, alerts, and UI
 - **Assets Module**: Build durable goods inventory with location/owner tagging and attachments
 - **Cross-Module Navigation**: Implement tabbed inventory navigation with feature flags
+- **Cosmetics Enhancements**: PAO presets, photo uploads, dashboard integration, feature flag rollout.
 
 #### Advanced Meal Planning
 
@@ -110,8 +112,10 @@
 
 ## Completed Today
 
-- Memory Bank documentation refreshed and synchronized with repository state (commit `9c885c6031b7137163acaa1dd97d80f19f61b893`) — completed 2025-08-20 20:27 (UTC+7).
-- Added comprehensive documentation for household consumables/assets expansion (checklist, SRS scope, user manual, design doc).
+- Implemented cosmetics data model, hook layer, and UI (list, quick actions, modular add form) with Supabase migrations and RLS.
+- Split cosmetics add page into focused components (`components/`, `types.ts`, `constants.ts`, `utils.ts`) to ease maintenance.
+- Updated `todo.md` to reflect cosmetics backlog and marked implemented tasks.
+- Refreshed Memory Bank context (activeContext, progress) to capture cosmetics rollout status.
 
 ## Known Issues
 
@@ -159,4 +163,4 @@
 
 ## Notes
 
-This progress file was refreshed automatically to reflect the current repository state and recent documentation updates (2025-08-20 20:27 UTC+7).
+This progress file was refreshed automatically to reflect the current repository state and recent documentation updates (2025-08-22 11:10 UTC+7).
