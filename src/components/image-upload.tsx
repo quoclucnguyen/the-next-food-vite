@@ -22,7 +22,7 @@ interface ImageUploadProps {
   onImageRemove: () => void;
   onImageReadyForAI?: (base64Image: string, mimeType: string) => void; // New prop for AI analysis
   className?: string;
-  type: 'food-item' | 'recipe';
+  type: 'food-item' | 'recipe' | 'cosmetic';
   disabled?: boolean; // New prop to disable upload
 }
 

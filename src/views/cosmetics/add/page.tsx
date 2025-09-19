@@ -8,12 +8,14 @@ import {
   deriveCosmeticStatus,
   useCosmetics,
 } from "@/hooks/use-cosmetics"
+import { useSettings } from "@/hooks/use-settings"
 import { useUnits } from "@/hooks/use-units"
 import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useNavigate, useParams } from "react-router"
 
 import {
+  CosmeticAIAnalysisCard,
   CosmeticDetailsCard,
   CosmeticHeader,
   LifecycleSummaryCard,
@@ -21,16 +23,18 @@ import {
 } from "./components"
 import type { CosmeticFormValues, CosmeticInsert } from "./types"
 import { computeReminderTimestamp, parseNumber } from "./utils"
+import { useCosmeticImageAnalysis } from "./useCosmeticImageAnalysis"
 
 export default function CosmeticEditorPage() {
   const navigate = useNavigate()
   const { id } = useParams()
   const isEditMode = Boolean(id)
 
+  const { settings, hasGeminiApiKey, getSelectedGeminiModel } = useSettings()
   const { items, isLoading, isError, error, addItem, updateItem, refetch } =
     useCosmetics()
-  const { categories } = useCategories()
-  const { units } = useUnits()
+  const { categories, addCategory } = useCategories()
+  const { units, addUnit } = useUnits()
   const { createReminder, updateReminder, deleteReminder } =
     useCosmeticReminders()
 
@@ -57,6 +61,22 @@ export default function CosmeticEditorPage() {
   })
 
   const watchValues = form.watch()
+
+  const {
+    handleImageReadyForAI,
+    aiAnalysisLoading,
+    aiAnalysisError,
+    aiGeneratedInfo,
+  } = useCosmeticImageAnalysis({
+    setValue: form.setValue,
+    categories,
+    units,
+    addCategory,
+    addUnit,
+    settings,
+    hasGeminiApiKey,
+    getSelectedGeminiModel,
+  })
 
   const computedDisposeAt = useMemo(
     () =>
@@ -263,6 +283,13 @@ export default function CosmeticEditorPage() {
             className="grid gap-6 lg:grid-cols-[2fr_1fr]"
           >
             <div className="space-y-6">
+              <CosmeticAIAnalysisCard
+                control={form.control}
+                aiAnalysisLoading={aiAnalysisLoading}
+                aiAnalysisError={aiAnalysisError}
+                aiGeneratedInfo={aiGeneratedInfo}
+                onImageReadyForAI={handleImageReadyForAI}
+              />
               <CosmeticDetailsCard
                 form={form}
                 categories={categories}
@@ -282,7 +309,11 @@ export default function CosmeticEditorPage() {
                 >
                   Quay lại
                 </Button>
-                <Button type="submit" className="flex-1">
+                <Button
+                  type="submit"
+                  className="flex-1"
+                  disabled={aiAnalysisLoading}
+                >
                   {isEditMode ? "Lưu thay đổi" : "Thêm mỹ phẩm"}
                 </Button>
               </div>

@@ -28,9 +28,9 @@
 - [x] Add quick stats cards (total items, items due ≤14 days, expired, unopened backlog).
 
 ### 3.3 Intake / Edit Flow
-- [x] Create drawer/modal form for creating or editing cosmetics with validation for dates, PAO months, unit/size combos.
+- [x] Create drawer/modal form for creating hoặc editing cosmetics with validation for dates, PAO months, unit/size combos.
 - [ ] Support quick presets for PAO (3/6/9/12/24 months) and ability to duplicate an existing product.
-- [ ] Allow photo upload (Supabase storage) and auto-scan placeholder for future AI parsing (capture metadata for integration later).
+- [x] Allow photo upload with Supabase storage + Gemini AI auto-fill for cosmetics (name/brand/category/PAO).
 
 ### 3.4 Detail & Activity Timeline
 - [ ] Implement detail drawer showing product metadata, PAO countdown, upcoming reminder, and last usage.

@@ -46,6 +46,17 @@ export interface AIAnalyzedFoodItem {
   unit: string;
 }
 
+export interface AIAnalyzedCosmeticItem {
+  name: string;
+  brand: string;
+  category: string;
+  size?: string;
+  unit?: string;
+  paoMonths?: string;
+  description?: string;
+  notes?: string;
+}
+
 /**
  * Interface for AI-generated recipes
  */
@@ -398,6 +409,57 @@ export class GeminiClient {
       }
     } catch (error: unknown) {
       return handleApiError(error, 'analyze food image');
+    }
+  }
+
+  async analyzeCosmeticImage(
+    base64Image: string,
+    mimeType: string,
+  ): Promise<GeminiResponse<AIAnalyzedCosmeticItem>> {
+    const validationError = this.validateConfiguration()
+    if (validationError) {
+      return validationError as GeminiResponse<AIAnalyzedCosmeticItem>
+    }
+
+    // Ensure vision-capable model
+    const modelInfo = getModelInfo(this.selectedModel!)
+    let modelToUse = this.selectedModel!
+
+    if (!modelSupportsCapability(modelInfo, 'vision')) {
+      modelToUse = await getBestModelForUseCase('vision', this.apiKey || undefined)
+    }
+
+    try {
+      const prompt = PROMPTS.COSMETIC_IMAGE_ANALYSIS()
+      const result = await this.client!.models.generateContent({
+        model: modelToUse,
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              { text: prompt },
+              {
+                inlineData: {
+                  data: base64Image,
+                  mimeType,
+                },
+              },
+            ],
+          },
+        ],
+      })
+
+      const responseText = result.text || ''
+
+      try {
+        const parsedResponse: AIAnalyzedCosmeticItem = parseAIJsonResponse(responseText)
+        return createSuccessResponse(parsedResponse)
+      } catch (parseError) {
+        console.error('Failed to parse AI cosmetic response JSON:', responseText, parseError)
+        return createErrorResponse(responseText) as GeminiResponse<AIAnalyzedCosmeticItem>
+      }
+    } catch (error: unknown) {
+      return handleApiError(error, 'analyze cosmetic image') as GeminiResponse<AIAnalyzedCosmeticItem>
     }
   }
 

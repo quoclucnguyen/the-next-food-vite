@@ -6,6 +6,7 @@
 
 - Cosmetics inventory rollout: Supabase schema, hooks, and React views are now live. Focus is shifting to UX polish and feature gating.
 - Refactor cosmetics add page into modular components (`src/views/cosmetics/add/components/*` plus supporting `types.ts`, `constants.ts`, `utils.ts`).
+- Enable AI-powered image analysis for cosmetics intake (auto-fills name/brand/category/PAO via Gemini).
 - Extend cosmetics dashboard with quick actions/reminders (`src/views/cosmetics/page.tsx`).
 - Track follow-up tasks via `todo.md` (cosmetics module backlog).
 - Maintain documentation consistency across Memory Bank, checklist, and user guide entries.
@@ -30,7 +31,7 @@
 ## Next Steps (Immediate)
 
 1. Wire cosmetics reminders into global dashboard/notifications and shared analytics.
-2. Implement PAO presets, duplication UX, and storage uploads for cosmetics intake.
+2. Implement PAO presets and enhanced duplication UX for cosmetics intake.
 3. Introduce feature flags/settings toggle for cosmetics module rollout per household.
 4. Backfill tests for `useCosmetics` helpers and reminder scheduling.
 5. Continue documentation sync (Memory Bank, user manual, checklist) as cosmetics features evolve.

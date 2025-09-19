@@ -285,6 +285,25 @@ Hướng dẫn:
 
 Lưu ý: Sử dụng tên thực phẩm và mô tả bằng tiếng Việt, nhưng giữ nguyên các key trong JSON và category bằng tiếng Anh.`,
 
+  COSMETIC_IMAGE_ANALYSIS: () =>
+    `Phân tích hình ảnh sản phẩm thuộc nhóm mỹ phẩm hoặc phụ kiện làm đẹp (ví dụ: son môi, kem dưỡng, nước hoa, cọ trang điểm, dụng cụ skincare). Nếu ảnh KHÔNG phải mỹ phẩm/phụ kiện làm đẹp, trả về JSON với mọi trường là chuỗi rỗng. Xuất kết quả theo định dạng JSON:
+{
+  "name": "Tên sản phẩm (ví dụ: 'Son môi đỏ', 'Sữa rửa mặt dịu nhẹ')",
+  "brand": "Tên thương hiệu nếu nhận diện được (ví dụ: 'Maybelline', 'La Roche-Posay')",
+  "category": "Danh mục tiếng Việt (ví dụ: 'son môi', 'sữa rửa mặt', 'kem dưỡng ẩm', 'nước hoa', 'dầu gội')",
+  "size": "Dung tích/khối lượng ghi trên bao bì (ví dụ: '30 ml', '200 g')",
+  "unit": "Đơn vị đo (ví dụ: 'ml', 'g', 'cái')",
+  "paoMonths": "Thời hạn sử dụng sau khi mở nắp, tính bằng số tháng (ví dụ: '12'), để trống nếu không chắc chắn",
+  "description": "Mô tả công dụng hoặc đặc điểm nổi bật",
+  "notes": "Bất kỳ lưu ý quan trọng nào khác"
+}
+
+Yêu cầu:
+- Trả lời bằng tiếng Việt nhưng giữ nguyên tên key JSON.
+- Nếu không xác định được giá trị, trả về chuỗi rỗng.
+- Nếu hình ảnh không phải mỹ phẩm/phụ kiện làm đẹp, trả về JSON với tất cả giá trị là chuỗi rỗng và không đưa ra mô tả.
+- Không thêm văn bản bên ngoài JSON.`,
+
   FOOD_IMAGE_GENERATION: (
     prompt: string,
     options: { width?: number; height?: number; style?: string }

@@ -1,4 +1,5 @@
 export { CosmeticHeader } from "./CosmeticHeader"
+export { CosmeticAIAnalysisCard } from "./CosmeticAIAnalysisCard"
 export { CosmeticDetailsCard } from "./CosmeticDetailsCard"
 export { LifecycleSummaryCard } from "./LifecycleSummaryCard"
 export { ReminderSettingsCard } from "./ReminderSettingsCard"

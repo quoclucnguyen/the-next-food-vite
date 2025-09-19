@@ -114,6 +114,7 @@
 
 - Implemented cosmetics data model, hook layer, and UI (list, quick actions, modular add form) with Supabase migrations and RLS.
 - Split cosmetics add page into focused components (`components/`, `types.ts`, `constants.ts`, `utils.ts`) to ease maintenance.
+- Added Gemini-powered cosmetic image analysis that pre-fills form fields on upload.
 - Updated `todo.md` to reflect cosmetics backlog and marked implemented tasks.
 - Refreshed Memory Bank context (activeContext, progress) to capture cosmetics rollout status.
 
