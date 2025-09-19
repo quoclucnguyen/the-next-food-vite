@@ -1,69 +1,91 @@
-# React + TypeScript + Vite
+# The Next Food
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React + TypeScript application that helps households track food inventory, plan meals, discover AI-assisted recipes, and generate smart shopping lists. The project is optimized for mobile-first usage while remaining responsive across devices, and integrates Supabase and Google Gemini AI for data storage and intelligent suggestions.
 
-Currently, two official plugins are available:
+## Key Capabilities
+- Inventory management with quantities, expiration tracking, and photo uploads
+- Gemini-powered recipe discovery tailored to on-hand ingredients
+- Meal planning calendar with AI autoplan and shortage highlights
+- Smart shopping lists generated from meal plans and inventory gaps
+- Multi-member household support with Supabase authentication and RLS
+- Tailwind + shadcn/ui design system for consistent, accessible UI
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Technology Stack
+- **Frontend**: React 19, TypeScript 5.8, Vite 7
+- **UI**: Tailwind CSS 4, shadcn/ui, Radix primitives, Lucide icons
+- **State & Data**: React Query 5, React Hook Form, Zod (planned), Zustand (optional)
+- **Backend Services**: Supabase (Auth, Postgres, Storage), Google Gemini AI via `@google/genai`
+- **Tooling**: pnpm, ESLint, Vitest + Testing Library, Mock Service Worker (planned), Sonner toasts
 
-## Expanding the ESLint configuration
+## Getting Started
+1. **Clone & Install**
+   ```bash
+   git clone <repo-url>
+   cd the-next-food-vite
+   pnpm install
+   ```
+2. **Environment Variables** — create `.env.local` (never commit) with:
+   ```env
+   VITE_SUPABASE_URL="..."
+   VITE_SUPABASE_ANON_KEY="..."
+   VITE_GEMINI_API_KEY="..."
+   ```
+3. **Development Server**
+   ```bash
+   pnpm dev
+   ```
+   App runs at http://localhost:5173.
+4. **Supabase Setup** — apply schema from `docs/design/database.md` and configure RLS policies, storage buckets, and auth redirects.
+5. **Gemini Setup** — provision API key in Google AI Studio and review quota alerts.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+See `docs/user-guide/installation.md` for detailed onboarding (tooling, optional setup).
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Available Scripts
+- `pnpm dev` – run Vite dev server with HMR
+- `pnpm build` – type-check then emit production bundle to `dist/`
+- `pnpm preview` – serve the built bundle locally
+- `pnpm lint` – run ESLint per `eslint.config.js`
+- `pnpm test` – execute Vitest suite (add tests under `src/__tests__/` or alongside files)
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Project Structure
+```
+src/
+  components/        # Shared components, design system wrappers
+  components/ui/     # shadcn/ui primitives
+  hooks/             # Custom hooks (useInventoryItems, useRecipes...)
+  lib/               # Supabase/Gemini clients, utilities
+  views/             # Route-level pages (inventory, recipes, meal-planning, shopping)
+  router.tsx         # Application routing
+public/              # Static assets
+memory-bank/         # Living project context for Cline/Codex workflows
+docs/                # Formal documentation suite (SRS, design, testing, user guides)
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Documentation Map
+- Requirements: `docs/SRS.md`
+- Design: `docs/design/architecture.md`, `docs/design/database.md`, `docs/design/ui.md`, `docs/design/process-flows.md`
+- Testing: `docs/testing/test-plan.md`, `docs/testing/test-cases.md`, `docs/testing/bug-process.md`
+- User Guides: `docs/user-guide/installation.md`, `docs/user-guide/user-manual.md`, `docs/user-guide/troubleshooting.md`
+- Deployment & Ops: `docs/deployment/deployment-guide.md`, `docs/deployment/maintenance-guide.md`
+- Diagrams (Mermaid): `docs/diagrams/*.md`
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Quality & Testing
+- Follow the test strategy in `docs/testing/test-plan.md`
+- Prioritize unit/component tests with Vitest + Testing Library; mock Supabase/Gemini via MSW fixtures.
+- Run `pnpm lint` and `pnpm build` before committing to ensure type safety and bundle health.
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Deployment Overview
+- Recommended hosting: Vercel/Netlify for static SPA + Supabase backend. Steps and configuration checklists in `docs/deployment/deployment-guide.md`.
+- Monitor Supabase and Gemini usage; integrate Sentry/analytics per `docs/deployment/maintenance-guide.md`.
+
+## Memory Bank Workflow
+The project ships with a Memory Bank (`memory-bank/`) that Codex/Cline reads before tasks. Keep those files current and follow the workflow described in `AGENTS.md` to preserve long-term project knowledge.
+
+## Contributing
+1. Create feature branch using Conventional Commit naming (`feat/`, `fix/`, etc.).
+2. Update relevant docs and Memory Bank entries for significant changes.
+3. Ensure scripts (`pnpm lint`, `pnpm build`, `pnpm test`) pass before opening PR.
+4. Include screenshots or clips for UI changes and note env impacts in the PR template.
+
+## License
+TBD — update this section once licensing decision is made.
