@@ -82,7 +82,7 @@ Each feature includes description, priority, triggers, preconditions, basic flow
 
 ### 3.2 Inventory Management
 - **Priority**: High
-- **Description**: Manage household inventory across three modules—Food Inventory, Household Consumables (date-tracked), and Household Assets (non-date)—with shared UX patterns and module-specific fields.
+- **Description**: Manage household inventory across four modules—Food Inventory, Household Consumables (date-tracked), Cosmetics Management (PAO-tracked), and Household Assets (non-date)—with shared UX patterns and module-specific fields.
 - **Preconditions**: Authenticated user; inventory tables accessible per module via Supabase RLS.
 - **Flow**: Add item manually or via barcode/AI intake → confirm details within the relevant module → persist to Supabase with optimistic cache updates.
 - **Alternate**: Bulk import via CSV (future), offline caching (future).
@@ -98,13 +98,18 @@ Each feature includes description, priority, triggers, preconditions, basic flow
 - Key fields: `name`, `quantity`, `unit`, `category`, `storage_location`, `replacement_date`, `reminder_lead_time`, optional receipt/label attachment.
 - Status: Planned module; see `docs/design/household-inventory.md` for UX and data outline.
 
-#### 3.2.3 Household Assets (Non-date)
+#### 3.2.3 Cosmetics Management (PAO-tracked)
+- Scope: Beauty and personal-care products (skincare, makeup, haircare, fragrance) that require tracking of manufacturer expirations and Period After Opening (PAO) guidance.
+- Key fields: `name`, `brand`, `category`, `size`, `unit`, `purchase_date`, `opened_at`, `pao_months`, `expiry_date`, `dispose_at`, `status`, `notes`, `image_url` plus supporting event history.
+- Status: Newly planned/implemented module with UI intake flow, PAO calculators, and reminder surfacing; future work includes AI purchase recommendations and cross-module dashboards.
+
+#### 3.2.4 Household Assets (Non-date)
 - Scope: Durable goods without formal expiration (appliances, tools, electronics, furniture, hobby gear).
 - Key fields: `name`, `category`, `location`, `owner`, `purchase_details`, `serial_number`, optional warranty/maintenance notes.
 - Status: Planned module; prioritizes quick lookup, search facets, and attachment storage for manuals/receipts.
 
-#### 3.2.4 Item Coverage Reference
-The consumables and assets modules explicitly exclude cosmetics and clothing (and related accessories) per product decision.
+#### 3.2.5 Item Coverage Reference
+Cosmetics now fall under the dedicated PAO-tracked module. Clothing and related accessories remain out of scope for all inventory modules.
 
 **Items with lifecycle dates**
 - Fresh produce, meat, seafood, deli items, and prepared meals
@@ -115,6 +120,7 @@ The consumables and assets modules explicitly exclude cosmetics and clothing (an
 - Prescription medication, over-the-counter medicine, vitamins, and supplements
 - First-aid supplies (antiseptics, ointments, bandages, sterile pads)
 - Cleaning and laundry chemicals (disinfectant, bleach, descalers, detergents)
+- Cosmetics and personal care (skincare, makeup, haircare, fragrance) governed by manufacturer expiry or PAO guidance
 - Water, HVAC, and air purifier filters or cartridges
 - Fire extinguishers, smoke/CO detector sensors, and emergency lighting batteries
 - Single-use and rechargeable batteries with manufacturer shelf lives

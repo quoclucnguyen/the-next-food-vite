@@ -11,9 +11,7 @@
 - **AI Spotlight**: Gemini-generated suggestions tailored to your inventory.
 
 ## 3. Inventory Management
-The Inventory hub is being expanded to expose three parallel modules so you can track food, date-driven household consumables, and durable assets without crossing data. Food inventory is live today; the consumables and assets modules are rolling out next. Use the tabs at the top of the Inventory page (when enabled) to switch modules—each module remembers its own filters and sorting.
-
-> Cosmetics, clothing, and clothing accessories are intentionally out of scope for every module.
+The Inventory hub now exposes four parallel modules so you can track food, date-driven household consumables, cosmetics, and durable assets without crossing data. Food inventory is live today; consumables, cosmetics, and assets progressively roll out per household flag. Use the tabs at the top of the Inventory page (when enabled) to switch modules—each module remembers its own filters and sorting.
 
 ### Food Inventory (Existing)
 1. Open the `Food` tab inside Inventory.
@@ -28,6 +26,13 @@ The Inventory hub is being expanded to expose three parallel modules so you can 
 3. Provide quantity/unit when relevant and set a `Replacement Date` plus optional reminder lead time.
 4. Attach label photos or receipts so the AI helper can prefill fields on future entries.
 5. Items move to the "Attention" filter automatically as their replacement date approaches.
+
+### Cosmetics Management (PAO-tracked)
+1. Open the `Cosmetics` tab to track skincare, makeup, haircare, and other personal-care products.
+2. When adding a product, record the brand, category, size, purchase date, and either manufacturer expiry or PAO value.
+3. Mark the product as opened to start the PAO countdown; the app calculates a discard date using the sooner of PAO or printed expiry.
+4. Use quick actions to log usage notes, duplicate similar items, or mark products as discarded/replenished.
+5. Reminders surface within the list and dashboard when a product is due within 14 days or already expired; snooze or mark as handled from the notification chip.
 
 ### Household Assets (Non-date)
 1. Switch to the `Assets` tab once available.
