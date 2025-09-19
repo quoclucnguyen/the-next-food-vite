@@ -27,7 +27,7 @@ export function RestaurantsToolbar({
   onAddRestaurant,
   onFilterChange,
   onToggleSort,
-}: RestaurantsToolbarProps) {
+}: Readonly<RestaurantsToolbarProps>) {
   return (
     <div className='bg-white shadow-xs border-b sticky top-0 z-10'>
       <div className='px-4 py-4'>

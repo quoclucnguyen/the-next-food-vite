@@ -60,7 +60,7 @@ export default function RestaurantsPage() {
         .map((r) => r.cuisine)
         .filter((cuisine): cuisine is string => Boolean(cuisine))
     );
-    return Array.from(cuisines).sort();
+    return Array.from(cuisines).sort((a, b) => a.localeCompare(b));
   }, [restaurants]);
 
   const filteredRestaurants = useMemo(() => {
