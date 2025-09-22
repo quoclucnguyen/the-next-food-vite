@@ -3,13 +3,15 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCategories, type CategoryWithType } from '@/hooks/use-categories';
 import { useCosmeticCategoryTypes } from '@/hooks/use-cosmetic-category-types';
 import { useCosmetics, type Cosmetic } from '@/hooks/use-cosmetics';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { Plus, RefreshCw, Search } from 'lucide-react';
+import { Plus, RefreshCw, Search, SlidersHorizontal } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { STATUS_FILTERS } from './constants';
@@ -29,7 +31,9 @@ export default function CosmeticsPage() {
 
   const { typedGroups, unassignedCategories } = useMemo(() => {
     const sortedCategories = [...categories].sort((a, b) =>
-      a.display_name.localeCompare(b.display_name, 'vi', { sensitivity: 'base' })
+      a.display_name.localeCompare(b.display_name, 'vi', {
+        sensitivity: 'base',
+      })
     );
 
     const groups = categoryTypes
@@ -56,6 +60,8 @@ export default function CosmeticsPage() {
   const [typeFilter, setTypeFilter] = useState<string | 'all'>('all');
   const [categoryFilter, setCategoryFilter] = useState<string | 'all'>('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const isMobile = useIsMobile?.() ?? false;
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
 
   const categoryLookup = useMemo(() => {
     const map = new Map<string, CategoryWithType>();
@@ -103,7 +109,8 @@ export default function CosmeticsPage() {
       const category = item.category_id
         ? categoryLookup.get(item.category_id)
         : undefined;
-      const categoryTypeId = category?.cosmetic_category_type_id ?? 'unassigned';
+      const categoryTypeId =
+        category?.cosmetic_category_type_id ?? 'unassigned';
 
       const matchesType =
         typeFilter === 'all'
@@ -145,7 +152,7 @@ export default function CosmeticsPage() {
       <div className='p-4 space-y-4'>
         <Skeleton className='h-12' />
         <Skeleton className='h-12' />
-        <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-3'>
+        <div className='grid gap-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3'>
           {Array.from({ length: 6 }).map((_, index) => (
             <Skeleton key={index} className='h-48' />
           ))}
@@ -186,7 +193,7 @@ export default function CosmeticsPage() {
     <div className='min-h-screen bg-gray-50'>
       <header className='bg-white border-b shadow-sm sticky top-0 z-10'>
         <div className='px-4 py-4 space-y-4'>
-          <div className='flex flex-wrap items-center justify-between gap-3'>
+          <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3'>
             <div>
               <h1 className='text-2xl font-semibold text-gray-900'>
                 Quản lý mỹ phẩm
@@ -195,10 +202,11 @@ export default function CosmeticsPage() {
                 Theo dõi PAO, hạn dùng và các nhắc nhở chăm sóc cá nhân.
               </p>
             </div>
-            <div className='flex flex-wrap gap-2'>
+            <div className='flex flex-col sm:flex-row gap-2 w-full sm:w-auto'>
               <Button
                 variant='outline'
                 size='sm'
+                className='w-full sm:w-auto'
                 onClick={refresh}
                 disabled={isRefreshing}
               >
@@ -210,8 +218,11 @@ export default function CosmeticsPage() {
                 />
                 Làm mới
               </Button>
-              <Link to='/inventory/cosmetics/add'>
-                <Button size='sm' className='bg-blue-600 hover:bg-blue-700'>
+              <Link to='/inventory/cosmetics/add' className='w-full sm:w-auto'>
+                <Button
+                  size='sm'
+                  className='bg-blue-600 hover:bg-blue-700 w-full sm:w-auto'
+                >
                   <Plus className='w-4 h-4 mr-2' />
                   Thêm mỹ phẩm
                 </Button>
@@ -219,14 +230,14 @@ export default function CosmeticsPage() {
             </div>
           </div>
 
-          <div className='grid gap-3 sm:grid-cols-2 lg:grid-cols-4'>
+          <div className='grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'>
             <OverviewCard title='Tổng số' value={overview.total} />
             <OverviewCard title='Sắp hết hạn' value={overview.dueSoon} />
             <OverviewCard title='Đã hết hạn' value={overview.expired} />
             <OverviewCard title='Chưa mở' value={overview.unopened} />
           </div>
 
-          <div className='grid gap-3 md:grid-cols-3'>
+          <div className='grid gap-3 grid-cols-1 md:grid-cols-3'>
             <div className='md:col-span-1'>
               <div className='relative'>
                 <Search className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4' />
@@ -258,56 +269,143 @@ export default function CosmeticsPage() {
                 </TabsList>
               </Tabs>
             </div>
-            <div className='md:col-span-1 space-y-3'>
-              <div className='space-y-2'>
-                <p className='text-xs font-medium uppercase text-gray-500'>Loại mỹ phẩm</p>
+            {/* Mobile filter button */}
+            {isMobile ? (
+              <div className='md:col-span-1 flex items-center justify-end'>
+                <Sheet open={filterSheetOpen} onOpenChange={setFilterSheetOpen}>
+                  <SheetTrigger asChild>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      className='flex items-center gap-2 w-full sm:w-auto'
+                      onClick={() => setFilterSheetOpen(true)}
+                    >
+                      <SlidersHorizontal className='w-4 h-4' />
+                      Bộ lọc
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent
+                    side='bottom'
+                    className='max-h-[80vh] overflow-y-auto'
+                  >
+                    <div className='space-y-3 py-2'>
+                      <div className='space-y-2'>
+                        <p className='text-xs font-medium uppercase text-gray-500'>
+                          Loại mỹ phẩm
+                        </p>
+                        <div className='flex flex-nowrap gap-2 overflow-x-auto pb-2'>
+                          <Badge
+                            variant={
+                              typeFilter === 'all' ? 'default' : 'outline'
+                            }
+                            className='cursor-pointer whitespace-nowrap text-xs px-2 py-1'
+                            onClick={handleResetCategories}
+                          >
+                            Tất cả loại
+                          </Badge>
+                          {categoryTypes.map((type) => (
+                            <Badge
+                              key={type.id}
+                              variant={
+                                typeFilter === type.id ? 'default' : 'outline'
+                              }
+                              className='cursor-pointer whitespace-nowrap text-xs px-2 py-1'
+                              onClick={() => handleTypeSelect(type.id)}
+                            >
+                              {type.display_name}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      <div className='flex flex-nowrap gap-2 overflow-x-auto pb-2'>
+                        <Badge
+                          variant={
+                            categoryFilter === 'all' ? 'default' : 'outline'
+                          }
+                          className='cursor-pointer whitespace-nowrap text-xs px-2 py-1'
+                          onClick={() => setCategoryFilter('all')}
+                        >
+                          Tất cả danh mục
+                        </Badge>
+                      </div>
+                      {visibleTypedGroups.map((group) => (
+                        <CategoryBadgeGroup
+                          key={group.id}
+                          label={group.label}
+                          categories={group.categories}
+                          activeCategory={categoryFilter}
+                          onSelect={handleCategorySelect}
+                          mobile
+                        />
+                      ))}
+                      {typeFilter === 'all' &&
+                        unassignedCategories.length > 0 && (
+                          <CategoryBadgeGroup
+                            label='Danh mục chưa gán'
+                            categories={unassignedCategories}
+                            activeCategory={categoryFilter}
+                            onSelect={handleCategorySelect}
+                            mobile
+                          />
+                        )}
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              </div>
+            ) : (
+              <div className='md:col-span-1 space-y-3'>
+                <div className='space-y-2'>
+                  <p className='text-xs font-medium uppercase text-gray-500'>
+                    Loại mỹ phẩm
+                  </p>
+                  <div className='flex flex-wrap gap-2'>
+                    <Badge
+                      variant={typeFilter === 'all' ? 'default' : 'outline'}
+                      className='cursor-pointer'
+                      onClick={handleResetCategories}
+                    >
+                      Tất cả loại
+                    </Badge>
+                    {categoryTypes.map((type) => (
+                      <Badge
+                        key={type.id}
+                        variant={typeFilter === type.id ? 'default' : 'outline'}
+                        className='cursor-pointer'
+                        onClick={() => handleTypeSelect(type.id)}
+                      >
+                        {type.display_name}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
                 <div className='flex flex-wrap gap-2'>
                   <Badge
-                    variant={typeFilter === 'all' ? 'default' : 'outline'}
+                    variant={categoryFilter === 'all' ? 'default' : 'outline'}
                     className='cursor-pointer'
-                    onClick={handleResetCategories}
+                    onClick={() => setCategoryFilter('all')}
                   >
-                    Tất cả loại
+                    Tất cả danh mục
                   </Badge>
-                  {categoryTypes.map((type) => (
-                    <Badge
-                      key={type.id}
-                      variant={typeFilter === type.id ? 'default' : 'outline'}
-                      className='cursor-pointer'
-                      onClick={() => handleTypeSelect(type.id)}
-                    >
-                      {type.display_name}
-                    </Badge>
-                  ))}
                 </div>
+                {visibleTypedGroups.map((group) => (
+                  <CategoryBadgeGroup
+                    key={group.id}
+                    label={group.label}
+                    categories={group.categories}
+                    activeCategory={categoryFilter}
+                    onSelect={handleCategorySelect}
+                  />
+                ))}
+                {typeFilter === 'all' && unassignedCategories.length > 0 && (
+                  <CategoryBadgeGroup
+                    label='Danh mục chưa gán'
+                    categories={unassignedCategories}
+                    activeCategory={categoryFilter}
+                    onSelect={handleCategorySelect}
+                  />
+                )}
               </div>
-              <div className='flex flex-wrap gap-2'>
-                <Badge
-                  variant={categoryFilter === 'all' ? 'default' : 'outline'}
-                  className='cursor-pointer'
-                  onClick={() => setCategoryFilter('all')}
-                >
-                  Tất cả danh mục
-                </Badge>
-              </div>
-              {visibleTypedGroups.map((group) => (
-                <CategoryBadgeGroup
-                  key={group.id}
-                  label={group.label}
-                  categories={group.categories}
-                  activeCategory={categoryFilter}
-                  onSelect={handleCategorySelect}
-                />
-              ))}
-              {typeFilter === 'all' && unassignedCategories.length > 0 && (
-                <CategoryBadgeGroup
-                  label='Danh mục chưa gán'
-                  categories={unassignedCategories}
-                  activeCategory={categoryFilter}
-                  onSelect={handleCategorySelect}
-                />
-              )}
-            </div>
+            )}
           </div>
         </div>
       </header>
@@ -329,7 +427,7 @@ export default function CosmeticsPage() {
             </Link>
           </div>
         ) : (
-          <div className='grid gap-4 sm:grid-cols-2 xl:grid-cols-3'>
+          <div className='grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3'>
             {filtered.map((cosmetic) => (
               <CosmeticCard
                 key={cosmetic.id}
@@ -384,11 +482,13 @@ function CategoryBadgeGroup({
   categories,
   activeCategory,
   onSelect,
+  mobile,
 }: Readonly<{
   label: string;
   categories: CategoryWithType[];
   activeCategory: string | 'all';
   onSelect: (categoryId: string) => void;
+  mobile?: boolean;
 }>) {
   if (!categories.length) {
     return null;
@@ -396,13 +496,24 @@ function CategoryBadgeGroup({
 
   return (
     <div>
-      <p className='text-xs font-medium uppercase text-gray-500 mb-1'>{label}</p>
-      <div className='flex flex-wrap gap-2'>
+      <p className='text-xs font-medium uppercase text-gray-500 mb-1'>
+        {label}
+      </p>
+      <div
+        className={
+          mobile
+            ? 'flex flex-nowrap gap-2 overflow-x-auto pb-2'
+            : 'flex flex-wrap gap-2'
+        }
+      >
         {categories.map((category) => (
           <Badge
             key={category.id}
             variant={activeCategory === category.id ? 'default' : 'outline'}
-            className='cursor-pointer'
+            className={
+              'cursor-pointer' +
+              (mobile ? ' whitespace-nowrap text-xs px-2 py-1' : '')
+            }
             onClick={() => onSelect(category.id)}
           >
             {category.display_name}

@@ -23,8 +23,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useNutrition } from '@/hooks/use-nutrition';
 import { useRecipes } from '@/hooks/use-recipes';
-import { isDiningDish, isHomeDish } from '@/types/meal-planning';
 import type { MealDish, MealSource } from '@/types/meal-planning';
+import { isDiningDish, isHomeDish } from '@/types/meal-planning';
 import {
   ChefHat,
   DollarSign,
@@ -100,6 +100,7 @@ export function MultiDishEditor({
       .filter(isDiningDish)
       .reduce((sum, dish) => sum + (dish.price || 0) * (dish.quantity || 1), 0);
 
+    // recipes: Recipe[] where Recipe has image_url: string | null
     const totalNutrition = calculateDishesNutrition(dishes, recipes);
 
     return { dishCount, totalPrice, totalNutrition };

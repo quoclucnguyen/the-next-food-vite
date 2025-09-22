@@ -3,18 +3,18 @@ export type MealSource = 'home' | 'dining_out';
 
 // Nutrition data interface
 export interface NutritionData {
-   kcal?: number;
-   protein?: number;
-   carbs?: number;
-   fat?: number;
+  kcal?: number;
+  protein?: number;
+  carbs?: number;
+  fat?: number;
 }
 
 // Base interface for meal dishes with common properties
 export interface MealDishBase {
-   id: string;
-   name: string;
-   notes?: string;
-   nutrition?: NutritionData;
+  id: string;
+  name: string;
+  notes?: string;
+  nutrition?: NutritionData;
 }
 
 // Home dish - for cooking at home using recipes
@@ -48,11 +48,11 @@ export interface Restaurant {
 // Extended meal plan interface supporting both home cooking and dining out
 export interface MealPlan {
   id: string;
-  user_id: string;
+  user_id: string | null;
   date: string;
   meal_type: 'breakfast' | 'lunch' | 'dinner';
   source: MealSource;
-  restaurantId?: string;
+  restaurantId?: string | null;
   dishes: MealDish[];
   created_at: string;
   updated_at: string;

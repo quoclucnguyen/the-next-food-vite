@@ -26,7 +26,7 @@ interface FoodItemCardProps {
     unit: string;
     expiration_date: string;
     category: string;
-    image_url?: string;
+    image_url: string | null;
   };
   onDelete: (id: string) => void;
 }

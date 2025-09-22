@@ -314,7 +314,7 @@ export default function ShoppingListPage() {
                           className='flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50'
                         >
                           <Checkbox
-                            checked={item.completed}
+                            checked={item.completed ?? false}
                             onCheckedChange={() => toggleItem(item.id)}
                           />
                           <div

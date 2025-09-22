@@ -1,8 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Users, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Image } from '@/components/ui/image';
+import { Clock, Trash2, Users } from 'lucide-react';
 import { Link } from 'react-router';
 
 interface RecipeCardProps {
@@ -13,7 +13,7 @@ interface RecipeCardProps {
     instructions: string[];
     prep_time: number;
     servings: number;
-    image_url?: string;
+    image_url: string | null;
   };
   onDelete: (id: string) => void;
 }

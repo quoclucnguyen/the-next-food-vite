@@ -1,17 +1,73 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
 import type { Database } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import type {
-  MealPlan,
   CreateMealPlanInput,
+  MealPlan,
   UpdateMealPlanInput,
 } from '@/types/meal-planning';
+import { useEffect, useState } from 'react';
 
 type MealPlanInsert = Database['public']['Tables']['meal_plans']['Insert'];
 
 export function useMealPlans() {
   const [mealPlans, setMealPlans] = useState<MealPlan[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const mapDbToMealPlan = (
+    plan: Database['public']['Tables']['meal_plans']['Row'] & {
+      recipe?: {
+        name?: string;
+        ingredients?: string[];
+        instructions?: string[];
+        prep_time?: number;
+        servings?: number;
+        image_url?: string;
+      } | null;
+      dishes?: unknown;
+      restaurant_id?: string | null;
+    }
+  ): MealPlan => {
+    return {
+      id: plan.id,
+      user_id: plan.user_id ?? null,
+      date: plan.date,
+      meal_type:
+        plan.meal_type === 'breakfast' ||
+        plan.meal_type === 'lunch' ||
+        plan.meal_type === 'dinner'
+          ? plan.meal_type
+          : 'breakfast',
+      source: (plan.source as MealPlan['source']) ?? 'home',
+      restaurantId:
+        typeof plan.restaurant_id === 'string' ? plan.restaurant_id : undefined,
+      dishes: Array.isArray(plan.dishes)
+        ? (plan.dishes as unknown as MealPlan['dishes'])
+        : plan.recipe_id
+        ? [
+            {
+              id: plan.recipe_id,
+              name: plan.recipe?.name || 'Unknown Recipe',
+              recipeId: plan.recipe_id,
+              servings: 1,
+            },
+          ]
+        : [],
+      created_at: plan.created_at ?? '',
+      updated_at: plan.updated_at ?? '',
+      recipe_id: plan.recipe_id ?? undefined,
+      recipe: plan.recipe
+        ? {
+            id: plan.recipe_id ?? '',
+            name: plan.recipe.name ?? '',
+            ingredients: plan.recipe.ingredients ?? undefined,
+            instructions: plan.recipe.instructions ?? undefined,
+            prep_time: plan.recipe.prep_time ?? undefined,
+            servings: plan.recipe.servings ?? undefined,
+            image_url: plan.recipe.image_url ?? undefined,
+          }
+        : undefined,
+    };
+  };
 
   const fetchMealPlans = async () => {
     try {
@@ -28,21 +84,7 @@ export function useMealPlans() {
       if (error) throw error;
 
       // Transform legacy database records to new MealPlan format
-      const transformedData: MealPlan[] = (data || []).map((plan) => ({
-        ...plan,
-        source: 'home' as const, // Default for existing records
-        dishes: plan.recipe_id
-          ? [
-              {
-                id: plan.recipe_id,
-                name: plan.recipe?.name || 'Unknown Recipe',
-                recipeId: plan.recipe_id,
-                servings: 1, // Default serving size
-              },
-            ]
-          : [],
-        restaurantId: undefined,
-      }));
+      const transformedData: MealPlan[] = (data || []).map(mapDbToMealPlan);
 
       setMealPlans(transformedData);
     } catch (error) {
@@ -71,8 +113,9 @@ export function useMealPlans() {
         .single();
 
       if (error) throw error;
-      setMealPlans((prev) => [...prev, data]);
-      return data;
+      const newPlan = mapDbToMealPlan(data);
+      setMealPlans((prev) => [...prev, newPlan]);
+      return newPlan;
     } catch (error) {
       console.error('Error adding meal plan:', error);
       throw error;
@@ -126,12 +169,12 @@ export function useMealPlans() {
 
       if (error) throw error;
 
-      // Transform to new MealPlan format
+      const transformed = mapDbToMealPlan(data);
       const newMealPlan: MealPlan = {
-        ...data,
+        ...transformed,
         source: input.source,
-        dishes: input.dishes,
-        restaurantId: input.restaurantId,
+        dishes: Array.isArray(input.dishes) ? input.dishes : transformed.dishes,
+        restaurantId: input.restaurantId ?? transformed.restaurantId,
       };
 
       setMealPlans((prev) => [...prev, newMealPlan]);
@@ -170,12 +213,12 @@ export function useMealPlans() {
 
       if (error) throw error;
 
-      // Transform and update the meal plan in state
+      const transformed = mapDbToMealPlan(data);
       const updatedMealPlan: MealPlan = {
-        ...data,
-        source: input.source || data.source,
-        dishes: input.dishes || data.dishes,
-        restaurantId: input.restaurantId || data.restaurantId,
+        ...transformed,
+        source: (input.source as MealPlan['source']) || transformed.source,
+        dishes: Array.isArray(input.dishes) ? input.dishes : transformed.dishes,
+        restaurantId: input.restaurantId ?? transformed.restaurantId,
       };
 
       setMealPlans((prev) =>

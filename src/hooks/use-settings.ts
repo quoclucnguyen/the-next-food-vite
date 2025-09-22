@@ -1,3 +1,4 @@
+import type { Json } from '@/lib/supabase';
 import { supabase } from '@/lib/supabase';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
@@ -11,11 +12,11 @@ interface UserPreferences {
 
 interface UserSettingsRow {
   id?: string;
-  user_id?: string;
+  user_id?: string | null;
   gemini_api_key?: string | null;
-  preferences: UserPreferences;
-  created_at?: string;
-  updated_at?: string;
+  preferences?: UserPreferences | null;
+  created_at?: string | null;
+  updated_at?: string | null;
 }
 
 interface Settings {
@@ -52,7 +53,18 @@ export function useSettings() {
       // PGRST116 = "no rows", perfectly OK for a brand-new user
       if (error && error.code !== 'PGRST116') throw error;
 
-      const result = data || { preferences: {} };
+      const row = data || null;
+      const result: UserSettingsRow = {
+        id: row?.id,
+        user_id: row?.user_id ?? null,
+        gemini_api_key: row?.gemini_api_key ?? null,
+        preferences:
+          typeof row?.preferences === 'object' && row?.preferences !== null
+            ? (row?.preferences as UserPreferences)
+            : {},
+        created_at: row?.created_at ?? null,
+        updated_at: row?.updated_at ?? null,
+      };
       return result;
     },
   });
@@ -85,7 +97,7 @@ export function useSettings() {
         {
           user_id: user.id,
           gemini_api_key: apiKey,
-          preferences: fetchedSettings?.preferences || {},
+          preferences: (fetchedSettings?.preferences || {}) as unknown as Json,
         },
         {
           onConflict: 'user_id',
@@ -114,7 +126,7 @@ export function useSettings() {
         {
           user_id: user.id,
           gemini_api_key: null,
-          preferences: fetchedSettings?.preferences || {},
+          preferences: (fetchedSettings?.preferences || {}) as unknown as Json,
         },
         {
           onConflict: 'user_id',
@@ -146,7 +158,7 @@ export function useSettings() {
         {
           user_id: user.id,
           gemini_api_key: fetchedSettings?.gemini_api_key || null,
-          preferences: merged,
+          preferences: merged as unknown as Json,
         },
         {
           onConflict: 'user_id',

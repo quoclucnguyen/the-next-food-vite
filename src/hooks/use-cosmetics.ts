@@ -14,6 +14,8 @@ import type {
 } from '@/types/cosmetics';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
+export { formatCosmeticDate } from '@/lib/cosmetic-utils';
+
 export function useCosmetics() {
   const queryClient = useQueryClient();
 

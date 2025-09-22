@@ -92,7 +92,10 @@ export default function RecipesPage() {
             {filteredRecipes.map((recipe) => (
               <RecipeCard
                 key={recipe.id}
-                recipe={recipe}
+                recipe={{
+                  ...recipe,
+                  image_url: recipe.image_url ?? null,
+                }}
                 onDelete={handleDeleteRecipe}
               />
             ))}

@@ -5,7 +5,14 @@ import { useNutrition } from '@/hooks/use-nutrition';
 import { useRecipes } from '@/hooks/use-recipes';
 import { useRestaurants } from '@/hooks/use-restaurants';
 import type { MealPlan, MealSource } from '@/types/meal-planning';
-import { ChefHat, Flame, MapPin, Plus, Target, UtensilsCrossed } from 'lucide-react';
+import {
+  ChefHat,
+  Flame,
+  MapPin,
+  Plus,
+  Target,
+  UtensilsCrossed,
+} from 'lucide-react';
 
 interface MealCellProps {
   meal: MealPlan | null;

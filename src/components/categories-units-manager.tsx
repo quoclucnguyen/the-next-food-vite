@@ -1,44 +1,44 @@
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from '@/components/ui/dialog';
 import {
   Drawer,
   DrawerContent,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from '@/components/ui/drawer'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+} from '@/components/ui/drawer';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { useCategories } from '@/hooks/use-categories'
+} from '@/components/ui/tooltip';
+import { useCategories } from '@/hooks/use-categories';
 import {
   type CosmeticCategoryTypeRow,
   useCosmeticCategoryTypes,
-} from '@/hooks/use-cosmetic-category-types'
-import { useIsMobile } from '@/hooks/use-mobile'
-import { useUnits } from '@/hooks/use-units'
+} from '@/hooks/use-cosmetic-category-types';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useUnits } from '@/hooks/use-units';
 import {
   Edit2,
   Edit3,
@@ -49,14 +49,14 @@ import {
   Tags,
   Trash2,
   X,
-} from 'lucide-react'
-import { useMemo, useState } from 'react'
+} from 'lucide-react';
+import { useMemo, useState } from 'react';
 
 interface EditingItem {
   id: string;
   name: string;
   display_name: string;
-  cosmetic_category_type_id: string | null;
+  cosmetic_category_type_id?: string | null;
 }
 
 export function CategoriesUnitsManager() {
@@ -66,92 +66,92 @@ export function CategoriesUnitsManager() {
     addCategory,
     updateCategory,
     deleteCategory,
-  } = useCategories()
+  } = useCategories();
   const {
     categoryTypes,
     isLoading: categoryTypesLoading,
     addCategoryType,
     updateCategoryType,
     deleteCategoryType,
-  } = useCosmeticCategoryTypes()
+  } = useCosmeticCategoryTypes();
   const {
     units,
     isLoading: unitsLoading,
     addUnit,
     updateUnit,
     deleteUnit,
-  } = useUnits()
-  const isMobile = useIsMobile()
+  } = useUnits();
+  const isMobile = useIsMobile();
 
   const [newCategory, setNewCategory] = useState({
     name: '',
     display_name: '',
     cosmetic_category_type_id: '',
-  })
-  const [newUnit, setNewUnit] = useState({ name: '', display_name: '' })
+  });
+  const [newUnit, setNewUnit] = useState({ name: '', display_name: '' });
   const [newCategoryType, setNewCategoryType] = useState({
     name: '',
     display_name: '',
     description: '',
     rank: '',
-  })
+  });
   const [editingCategory, setEditingCategory] = useState<EditingItem | null>(
-    null,
-  )
-  const [editingUnit, setEditingUnit] = useState<EditingItem | null>(null)
+    null
+  );
+  const [editingUnit, setEditingUnit] = useState<EditingItem | null>(null);
   const [editingCategoryType, setEditingCategoryType] = useState<
     (typeof newCategoryType & { id: string }) | null
-  >(null)
+  >(null);
 
   // Dialog/Drawer states
-  const [addCategoryOpen, setAddCategoryOpen] = useState(false)
-  const [addUnitOpen, setAddUnitOpen] = useState(false)
-  const [addCategoryTypeOpen, setAddCategoryTypeOpen] = useState(false)
-  const [editCategoryOpen, setEditCategoryOpen] = useState(false)
-  const [editUnitOpen, setEditUnitOpen] = useState(false)
-  const [editCategoryTypeOpen, setEditCategoryTypeOpen] = useState(false)
+  const [addCategoryOpen, setAddCategoryOpen] = useState(false);
+  const [addUnitOpen, setAddUnitOpen] = useState(false);
+  const [addCategoryTypeOpen, setAddCategoryTypeOpen] = useState(false);
+  const [editCategoryOpen, setEditCategoryOpen] = useState(false);
+  const [editUnitOpen, setEditUnitOpen] = useState(false);
+  const [editCategoryTypeOpen, setEditCategoryTypeOpen] = useState(false);
 
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null);
 
   const categoriesCountByType = useMemo(() => {
-    const counts = new Map<string, number>()
+    const counts = new Map<string, number>();
     categories.forEach((category) => {
       if (category.cosmetic_category_type_id) {
-        const key = category.cosmetic_category_type_id
-        counts.set(key, (counts.get(key) ?? 0) + 1)
+        const key = category.cosmetic_category_type_id;
+        counts.set(key, (counts.get(key) ?? 0) + 1);
       }
-    })
-    return counts
-  }, [categories])
+    });
+    return counts;
+  }, [categories]);
 
   // Helper functions for opening modals
   const handleCategoryEdit = (category: {
-    id: string
-    name: string
-    display_name: string
-    cosmetic_category_type_id?: string | null
+    id: string;
+    name: string;
+    display_name: string;
+    cosmetic_category_type_id?: string | null;
   }) => {
     setEditingCategory({
       id: category.id,
       name: category.name,
       display_name: category.display_name,
       cosmetic_category_type_id: category.cosmetic_category_type_id ?? null,
-    })
-    setEditCategoryOpen(true)
-  }
+    });
+    setEditCategoryOpen(true);
+  };
 
   const handleUnitEdit = (unit: {
-    id: string
-    name: string
-    display_name: string
+    id: string;
+    name: string;
+    display_name: string;
   }) => {
     setEditingUnit({
       id: unit.id,
       name: unit.name,
       display_name: unit.display_name,
-    })
-    setEditUnitOpen(true)
-  }
+    });
+    setEditUnitOpen(true);
+  };
 
   const handleCategoryTypeEdit = (type: CosmeticCategoryTypeRow) => {
     setEditingCategoryType({
@@ -160,38 +160,43 @@ export function CategoriesUnitsManager() {
       display_name: type.display_name,
       description: type.description ?? '',
       rank: type.rank != null ? String(type.rank) : '',
-    })
-    setEditCategoryTypeOpen(true)
-  }
+    });
+    setEditCategoryTypeOpen(true);
+  };
 
   const parseRank = (value: string) => {
-    if (!value.trim()) return null
-    const parsed = Number(value)
-    return Number.isNaN(parsed) ? null : parsed
-  }
+    if (!value.trim()) return null;
+    const parsed = Number(value);
+    return Number.isNaN(parsed) ? null : parsed;
+  };
 
   const handleAddCategoryType = async () => {
     if (!newCategoryType.name.trim() || !newCategoryType.display_name.trim()) {
-      setError('Tên và tên hiển thị của loại mỹ phẩm là bắt buộc')
-      return
+      setError('Tên và tên hiển thị của loại mỹ phẩm là bắt buộc');
+      return;
     }
 
     try {
-      setError(null)
+      setError(null);
       await addCategoryType({
         name: newCategoryType.name.toLowerCase().trim(),
         display_name: newCategoryType.display_name.trim(),
         description: newCategoryType.description.trim() || null,
         rank: parseRank(newCategoryType.rank),
-      })
-      setNewCategoryType({ name: '', display_name: '', description: '', rank: '' })
-      setAddCategoryTypeOpen(false)
+      });
+      setNewCategoryType({
+        name: '',
+        display_name: '',
+        description: '',
+        rank: '',
+      });
+      setAddCategoryTypeOpen(false);
     } catch (err: unknown) {
       setError(
-        err instanceof Error ? err.message : 'Không thể thêm loại mỹ phẩm mới',
-      )
+        err instanceof Error ? err.message : 'Không thể thêm loại mỹ phẩm mới'
+      );
     }
-  }
+  };
 
   const handleUpdateCategoryType = async () => {
     if (
@@ -199,12 +204,12 @@ export function CategoriesUnitsManager() {
       !editingCategoryType.name.trim() ||
       !editingCategoryType.display_name.trim()
     ) {
-      setError('Tên và tên hiển thị của loại mỹ phẩm là bắt buộc')
-      return
+      setError('Tên và tên hiển thị của loại mỹ phẩm là bắt buộc');
+      return;
     }
 
     try {
-      setError(null)
+      setError(null);
       await updateCategoryType({
         id: editingCategoryType.id,
         updates: {
@@ -213,55 +218,59 @@ export function CategoriesUnitsManager() {
           description: editingCategoryType.description.trim() || null,
           rank: parseRank(editingCategoryType.rank),
         },
-      })
-      setEditingCategoryType(null)
-      setEditCategoryTypeOpen(false)
+      });
+      setEditingCategoryType(null);
+      setEditCategoryTypeOpen(false);
     } catch (err: unknown) {
       setError(
-        err instanceof Error ? err.message : 'Không thể cập nhật loại mỹ phẩm',
-      )
+        err instanceof Error ? err.message : 'Không thể cập nhật loại mỹ phẩm'
+      );
     }
-  }
+  };
 
   const handleDeleteCategoryType = async (id: string) => {
     if (
       !categoryTypes.some((type) => type.id === id) ||
       !confirm('Xóa loại mỹ phẩm này? Các danh mục liên quan sẽ bị bỏ gán.')
     ) {
-      return
+      return;
     }
 
     try {
-      setError(null)
-      await deleteCategoryType(id)
+      setError(null);
+      await deleteCategoryType(id);
     } catch (err: unknown) {
       setError(
-        err instanceof Error ? err.message : 'Không thể xóa loại mỹ phẩm',
-      )
+        err instanceof Error ? err.message : 'Không thể xóa loại mỹ phẩm'
+      );
     }
-  }
+  };
 
   const handleAddCategory = async () => {
     if (!newCategory.name.trim() || !newCategory.display_name.trim()) {
-      setError('Cả tên và tên hiển thị đều là bắt buộc')
-      return
+      setError('Cả tên và tên hiển thị đều là bắt buộc');
+      return;
     }
 
     try {
-      setError(null)
+      setError(null);
       await addCategory({
         name: newCategory.name.toLowerCase().trim(),
         display_name: newCategory.display_name.trim(),
         cosmetic_category_type_id: newCategory.cosmetic_category_type_id
           ? newCategory.cosmetic_category_type_id
           : null,
-      })
-      setNewCategory({ name: '', display_name: '', cosmetic_category_type_id: '' })
-      setAddCategoryOpen(false)
+      });
+      setNewCategory({
+        name: '',
+        display_name: '',
+        cosmetic_category_type_id: '',
+      });
+      setAddCategoryOpen(false);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Không thể thêm danh mục')
+      setError(err instanceof Error ? err.message : 'Không thể thêm danh mục');
     }
-  }
+  };
 
   const handleAddUnit = async () => {
     if (!newUnit.name.trim() || !newUnit.display_name.trim()) {
@@ -288,12 +297,12 @@ export function CategoriesUnitsManager() {
       !editingCategory.name.trim() ||
       !editingCategory.display_name.trim()
     ) {
-      setError('Cả tên và tên hiển thị đều là bắt buộc')
-      return
+      setError('Cả tên và tên hiển thị đều là bắt buộc');
+      return;
     }
 
     try {
-      setError(null)
+      setError(null);
       await updateCategory({
         id: editingCategory.id,
         updates: {
@@ -301,15 +310,15 @@ export function CategoriesUnitsManager() {
           display_name: editingCategory.display_name.trim(),
           cosmetic_category_type_id: editingCategory.cosmetic_category_type_id,
         },
-      })
-      setEditingCategory(null)
-      setEditCategoryOpen(false)
+      });
+      setEditingCategory(null);
+      setEditCategoryOpen(false);
     } catch (err: unknown) {
       setError(
-        err instanceof Error ? err.message : 'Không thể cập nhật danh mục',
-      )
+        err instanceof Error ? err.message : 'Không thể cập nhật danh mục'
+      );
     }
-  }
+  };
 
   const handleUpdateUnit = async () => {
     if (
@@ -417,16 +426,18 @@ export function CategoriesUnitsManager() {
                 : newCategory.cosmetic_category_type_id || 'none'
             }
             onValueChange={(value) => {
-              const resolved = value === 'none' ? '' : value
+              const resolved = value === 'none' ? '' : value;
               if (isEdit) {
                 setEditingCategory((prev) =>
-                  prev ? { ...prev, cosmetic_category_type_id: resolved || null } : null,
-                )
+                  prev
+                    ? { ...prev, cosmetic_category_type_id: resolved || null }
+                    : null
+                );
               } else {
                 setNewCategory((prev) => ({
                   ...prev,
                   cosmetic_category_type_id: resolved,
-                }))
+                }));
               }
             }}
           >
@@ -490,7 +501,7 @@ export function CategoriesUnitsManager() {
         </div>
       </div>
     </div>
-  )
+  );
 
   const CategoryTypeForm = ({ isEdit = false }: { isEdit?: boolean }) => (
     <div className='space-y-4'>
@@ -503,11 +514,13 @@ export function CategoriesUnitsManager() {
             <Input
               id='type-name'
               placeholder='ví dụ: skincare'
-              value={isEdit ? editingCategoryType?.name ?? '' : newCategoryType.name}
+              value={
+                isEdit ? editingCategoryType?.name ?? '' : newCategoryType.name
+              }
               onChange={(event) =>
                 isEdit
                   ? setEditingCategoryType((prev) =>
-                      prev ? { ...prev, name: event.target.value } : null,
+                      prev ? { ...prev, name: event.target.value } : null
                     )
                   : setNewCategoryType((prev) => ({
                       ...prev,
@@ -532,7 +545,9 @@ export function CategoriesUnitsManager() {
               onChange={(event) =>
                 isEdit
                   ? setEditingCategoryType((prev) =>
-                      prev ? { ...prev, display_name: event.target.value } : null,
+                      prev
+                        ? { ...prev, display_name: event.target.value }
+                        : null
                     )
                   : setNewCategoryType((prev) => ({
                       ...prev,
@@ -553,11 +568,13 @@ export function CategoriesUnitsManager() {
               type='number'
               min='0'
               placeholder='ví dụ: 1'
-              value={isEdit ? editingCategoryType?.rank ?? '' : newCategoryType.rank}
+              value={
+                isEdit ? editingCategoryType?.rank ?? '' : newCategoryType.rank
+              }
               onChange={(event) =>
                 isEdit
                   ? setEditingCategoryType((prev) =>
-                      prev ? { ...prev, rank: event.target.value } : null,
+                      prev ? { ...prev, rank: event.target.value } : null
                     )
                   : setNewCategoryType((prev) => ({
                       ...prev,
@@ -583,7 +600,7 @@ export function CategoriesUnitsManager() {
             onChange={(event) =>
               isEdit
                 ? setEditingCategoryType((prev) =>
-                    prev ? { ...prev, description: event.target.value } : null,
+                    prev ? { ...prev, description: event.target.value } : null
                   )
                 : setNewCategoryType((prev) => ({
                     ...prev,
@@ -595,7 +612,7 @@ export function CategoriesUnitsManager() {
         </div>
       </div>
     </div>
-  )
+  );
 
   if (categoriesLoading || unitsLoading || categoryTypesLoading) {
     return (
@@ -613,7 +630,7 @@ export function CategoriesUnitsManager() {
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -651,8 +668,8 @@ export function CategoriesUnitsManager() {
 
             {categoryTypes.length === 0 ? (
               <div className='rounded-lg border border-dashed bg-white p-4 text-sm text-gray-500'>
-                Chưa có loại mỹ phẩm nào. Tạo loại (ví dụ: Chăm sóc da, Trang điểm)
-                để nhóm danh mục phù hợp cho module mỹ phẩm.
+                Chưa có loại mỹ phẩm nào. Tạo loại (ví dụ: Chăm sóc da, Trang
+                điểm) để nhóm danh mục phù hợp cho module mỹ phẩm.
               </div>
             ) : (
               <div className='space-y-2'>
@@ -663,17 +680,26 @@ export function CategoriesUnitsManager() {
                   >
                     <div className='flex-1 space-y-1'>
                       <div className='flex items-center gap-2'>
-                        <span className='font-medium text-gray-900'>{type.display_name}</span>
-                        <Badge variant='outline' className='text-xs'>{type.name}</Badge>
+                        <span className='font-medium text-gray-900'>
+                          {type.display_name}
+                        </span>
+                        <Badge variant='outline' className='text-xs'>
+                          {type.name}
+                        </Badge>
                         {type.rank != null && (
-                          <span className='text-xs text-gray-500'>(Thứ tự: {type.rank})</span>
+                          <span className='text-xs text-gray-500'>
+                            (Thứ tự: {type.rank})
+                          </span>
                         )}
                       </div>
                       {type.description && (
-                        <p className='text-sm text-gray-600'>{type.description}</p>
+                        <p className='text-sm text-gray-600'>
+                          {type.description}
+                        </p>
                       )}
                       <p className='text-xs text-gray-500'>
-                        {categoriesCountByType.get(type.id) ?? 0} danh mục đang gán
+                        {categoriesCountByType.get(type.id) ?? 0} danh mục đang
+                        gán
                       </p>
                     </div>
                     <div className='flex items-center gap-2'>
@@ -990,7 +1016,10 @@ export function CategoriesUnitsManager() {
 
       {/* Add Cosmetic Category Type Dialog/Drawer */}
       {isMobile ? (
-        <Drawer open={addCategoryTypeOpen} onOpenChange={setAddCategoryTypeOpen}>
+        <Drawer
+          open={addCategoryTypeOpen}
+          onOpenChange={setAddCategoryTypeOpen}
+        >
           <DrawerContent>
             <DrawerHeader>
               <DrawerTitle>Thêm loại mỹ phẩm</DrawerTitle>
@@ -1006,8 +1035,13 @@ export function CategoriesUnitsManager() {
               <Button
                 variant='outline'
                 onClick={() => {
-                  setAddCategoryTypeOpen(false)
-                  setNewCategoryType({ name: '', display_name: '', description: '', rank: '' })
+                  setAddCategoryTypeOpen(false);
+                  setNewCategoryType({
+                    name: '',
+                    display_name: '',
+                    description: '',
+                    rank: '',
+                  });
                 }}
                 className='h-12'
               >
@@ -1018,7 +1052,10 @@ export function CategoriesUnitsManager() {
           </DrawerContent>
         </Drawer>
       ) : (
-        <Dialog open={addCategoryTypeOpen} onOpenChange={setAddCategoryTypeOpen}>
+        <Dialog
+          open={addCategoryTypeOpen}
+          onOpenChange={setAddCategoryTypeOpen}
+        >
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Thêm loại mỹ phẩm</DialogTitle>
@@ -1028,8 +1065,13 @@ export function CategoriesUnitsManager() {
               <Button
                 variant='outline'
                 onClick={() => {
-                  setAddCategoryTypeOpen(false)
-                  setNewCategoryType({ name: '', display_name: '', description: '', rank: '' })
+                  setAddCategoryTypeOpen(false);
+                  setNewCategoryType({
+                    name: '',
+                    display_name: '',
+                    description: '',
+                    rank: '',
+                  });
                 }}
               >
                 <X className='w-4 h-4 mr-2' />
@@ -1046,7 +1088,10 @@ export function CategoriesUnitsManager() {
 
       {/* Edit Cosmetic Category Type Dialog/Drawer */}
       {isMobile ? (
-        <Drawer open={editCategoryTypeOpen} onOpenChange={setEditCategoryTypeOpen}>
+        <Drawer
+          open={editCategoryTypeOpen}
+          onOpenChange={setEditCategoryTypeOpen}
+        >
           <DrawerContent>
             <DrawerHeader>
               <DrawerTitle>Chỉnh sửa loại mỹ phẩm</DrawerTitle>
@@ -1062,8 +1107,8 @@ export function CategoriesUnitsManager() {
               <Button
                 variant='outline'
                 onClick={() => {
-                  setEditCategoryTypeOpen(false)
-                  setEditingCategoryType(null)
+                  setEditCategoryTypeOpen(false);
+                  setEditingCategoryType(null);
                 }}
                 className='h-12'
               >
@@ -1074,7 +1119,10 @@ export function CategoriesUnitsManager() {
           </DrawerContent>
         </Drawer>
       ) : (
-        <Dialog open={editCategoryTypeOpen} onOpenChange={setEditCategoryTypeOpen}>
+        <Dialog
+          open={editCategoryTypeOpen}
+          onOpenChange={setEditCategoryTypeOpen}
+        >
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Chỉnh sửa loại mỹ phẩm</DialogTitle>
@@ -1084,8 +1132,8 @@ export function CategoriesUnitsManager() {
               <Button
                 variant='outline'
                 onClick={() => {
-                  setEditCategoryTypeOpen(false)
-                  setEditingCategoryType(null)
+                  setEditCategoryTypeOpen(false);
+                  setEditingCategoryType(null);
                 }}
               >
                 <X className='w-4 h-4 mr-2' />
@@ -1123,7 +1171,7 @@ export function CategoriesUnitsManager() {
                     name: '',
                     display_name: '',
                     cosmetic_category_type_id: '',
-                  })
+                  });
                 }}
                 className='h-12'
               >
@@ -1149,7 +1197,7 @@ export function CategoriesUnitsManager() {
                     name: '',
                     display_name: '',
                     cosmetic_category_type_id: '',
-                  })
+                  });
                 }}
               >
                 <X className='w-4 h-4 mr-2' />

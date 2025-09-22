@@ -1,16 +1,15 @@
-import { useState, useEffect } from 'react';
-import { useParams } from 'react-router';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Clock, Users, ChefHat, Loader2 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Image } from '@/components/ui/image';
-import { Link } from 'react-router';
-import { supabase } from '@/lib/supabase';
+import { COMMON_TEXT, RECIPES_TEXT } from '@/lib/i18n-utils';
 import type { Database } from '@/lib/supabase';
-import { RECIPES_TEXT, COMMON_TEXT } from '@/lib/i18n-utils';
+import { supabase } from '@/lib/supabase';
+import { ArrowLeft, ChefHat, Clock, Loader2, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router';
 
 type Recipe = Database['public']['Tables']['recipes']['Row'] & {
-  image_url?: string;
+  image_url?: string | null;
 };
 
 export default function RecipeDetailPage() {
@@ -19,7 +18,7 @@ export default function RecipeDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const recipeId = params.id as string;
+  const recipeId = typeof params.id === 'string' ? params.id : '';
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -42,7 +41,10 @@ export default function RecipeDetailPage() {
           return;
         }
 
-        setRecipe(data);
+        setRecipe({
+          ...data,
+          image_url: data.image_url ?? null,
+        });
       } catch (err) {
         console.error('Error fetching recipe:', err);
         setError(RECIPES_TEXT.recipeLoadError);

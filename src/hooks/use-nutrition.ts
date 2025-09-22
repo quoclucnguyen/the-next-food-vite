@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 
 // Recipe type definition (matching use-recipes.ts)
 type Recipe = Database['public']['Tables']['recipes']['Row'] & {
-  image_url?: string;
+  image_url: string | null;
 };
 
 // Nutrition data interface
