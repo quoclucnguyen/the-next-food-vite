@@ -1,16 +1,21 @@
 
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { supabase } from "@/lib/supabase"
-import type { Database } from "@/lib/supabase"
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { supabase } from '@/lib/supabase'
+import type { Database } from '@/lib/supabase'
 
-type Category = Database["public"]["Tables"]["categories"]["Row"]
-type CategoryInsert = Database["public"]["Tables"]["categories"]["Insert"]
-type CategoryUpdate = Database["public"]["Tables"]["categories"]["Update"]
+type CategoryRow = Database['public']['Tables']['categories']['Row']
+type CategoryInsert = Database['public']['Tables']['categories']['Insert']
+type CategoryUpdate = Database['public']['Tables']['categories']['Update']
+type CosmeticCategoryType = Database['public']['Tables']['cosmetic_category_types']['Row']
+
+export type CategoryWithType = CategoryRow & {
+  cosmetic_category_type: CosmeticCategoryType | null
+}
 
 // Context types for optimistic updates
 type MutationContext = {
-  previousCategories?: Category[]
+  previousCategories?: CategoryWithType[]
 }
 
 const CATEGORIES_QUERY_KEY = ["categories"] as const
@@ -25,20 +30,25 @@ export function useCategories() {
     isError,
     error,
     refetch,
-  } = useQuery<Category[], Error>({
+  } = useQuery<CategoryWithType[], Error>({
     queryKey: CATEGORIES_QUERY_KEY,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("categories")
-        .select("*")
-        .order("display_name", { ascending: true })
+        .from('categories')
+        .select('*, cosmetic_category_type:cosmetic_category_type_id(*)')
+        .order('display_name', { ascending: true })
       if (error) throw error
-      return data || []
+      return (data as CategoryWithType[]) || []
     },
   })
 
   // Mutation for adding a category
-  const addCategoryMutation = useMutation<Category, Error, Omit<CategoryInsert, "user_id">, MutationContext>({
+  const addCategoryMutation = useMutation<
+    CategoryWithType,
+    Error,
+    Omit<CategoryInsert, 'user_id'>,
+    MutationContext
+  >({
     mutationFn: async (newCategory) => {
       const {
         data: { user },
@@ -49,12 +59,12 @@ export function useCategories() {
       if (!user) throw new Error("User not authenticated")
 
       const { data, error } = await supabase
-        .from("categories")
+        .from('categories')
         .insert({
           ...newCategory,
           user_id: user.id,
         })
-        .select()
+        .select('*, cosmetic_category_type:cosmetic_category_type_id(*)')
         .single()
 
       if (error) {
@@ -64,27 +74,29 @@ export function useCategories() {
         }
         throw new Error(`Failed to add category: ${error.message}`)
       }
-      return data
+      return data as CategoryWithType
     },
     onMutate: async (newCategory) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: CATEGORIES_QUERY_KEY })
 
       // Snapshot the previous value
-      const previousCategories = queryClient.getQueryData<Category[]>(CATEGORIES_QUERY_KEY)
+      const previousCategories = queryClient.getQueryData<CategoryWithType[]>(CATEGORIES_QUERY_KEY)
 
       // Optimistically update to the new value
       if (previousCategories) {
         // Create a more realistic optimistic category
-        const optimisticCategory: Category = {
+        const optimisticCategory: CategoryWithType = {
           id: `temp-${Date.now()}`,
-          user_id: "temp-user-id",
+          user_id: 'temp-user-id',
           name: newCategory.name,
           display_name: newCategory.display_name,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
+          cosmetic_category_type_id: newCategory.cosmetic_category_type_id ?? null,
+          cosmetic_category_type: null,
         }
-        queryClient.setQueryData<Category[]>(CATEGORIES_QUERY_KEY, [...previousCategories, optimisticCategory])
+        queryClient.setQueryData<CategoryWithType[]>(CATEGORIES_QUERY_KEY, [...previousCategories, optimisticCategory])
       }
 
       // Return a context object with the snapshotted value
@@ -104,13 +116,18 @@ export function useCategories() {
   })
 
   // Mutation for updating a category
-  const updateCategoryMutation = useMutation<Category, Error, { id: string; updates: CategoryUpdate }, MutationContext>({
+  const updateCategoryMutation = useMutation<
+    CategoryWithType,
+    Error,
+    { id: string; updates: CategoryUpdate },
+    MutationContext
+  >({
     mutationFn: async ({ id, updates }) => {
       const { data, error } = await supabase
-        .from("categories")
+        .from('categories')
         .update(updates)
-        .eq("id", id)
-        .select()
+        .eq('id', id)
+        .select('*, cosmetic_category_type:cosmetic_category_type_id(*)')
         .single()
 
       if (error) {
@@ -120,17 +137,28 @@ export function useCategories() {
         }
         throw new Error(`Failed to update category: ${error.message}`)
       }
-      return data
+      return data as CategoryWithType
     },
     onMutate: async ({ id, updates }) => {
       await queryClient.cancelQueries({ queryKey: CATEGORIES_QUERY_KEY })
-      const previousCategories = queryClient.getQueryData<Category[]>(CATEGORIES_QUERY_KEY)
+      const previousCategories = queryClient.getQueryData<CategoryWithType[]>(CATEGORIES_QUERY_KEY)
 
       if (previousCategories) {
         const updatedCategories = previousCategories.map((category) =>
-          category.id === id ? { ...category, ...updates } : category
+          category.id === id
+            ? {
+                ...category,
+                ...updates,
+                cosmetic_category_type:
+                  'cosmetic_category_type_id' in updates
+                    ? category.cosmetic_category_type?.id === updates.cosmetic_category_type_id
+                      ? category.cosmetic_category_type
+                      : null
+                    : category.cosmetic_category_type,
+              }
+            : category,
         )
-        queryClient.setQueryData<Category[]>(CATEGORIES_QUERY_KEY, updatedCategories)
+        queryClient.setQueryData<CategoryWithType[]>(CATEGORIES_QUERY_KEY, updatedCategories)
       }
 
       return { previousCategories }
@@ -149,18 +177,18 @@ export function useCategories() {
   // Mutation for deleting a category
   const deleteCategoryMutation = useMutation<void, Error, string, MutationContext>({
     mutationFn: async (id) => {
-      const { error } = await supabase.from("categories").delete().eq("id", id)
+      const { error } = await supabase.from('categories').delete().eq('id', id)
       if (error) {
         throw new Error(`Failed to delete category: ${error.message}`)
       }
     },
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: CATEGORIES_QUERY_KEY })
-      const previousCategories = queryClient.getQueryData<Category[]>(CATEGORIES_QUERY_KEY)
+      const previousCategories = queryClient.getQueryData<CategoryWithType[]>(CATEGORIES_QUERY_KEY)
 
       if (previousCategories) {
         const filteredCategories = previousCategories.filter((category) => category.id !== id)
-        queryClient.setQueryData<Category[]>(CATEGORIES_QUERY_KEY, filteredCategories)
+        queryClient.setQueryData<CategoryWithType[]>(CATEGORIES_QUERY_KEY, filteredCategories)
       }
 
       return { previousCategories }

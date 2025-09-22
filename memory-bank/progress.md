@@ -17,7 +17,7 @@
 - **Categories**: Basic categorization system for food items
 - **Image Upload**: Photo capture and storage for inventory items
 - **CRUD Operations**: Full create, read, update, delete functionality for food inventory items
-- **Cosmetics Module (MVP)**: Supabase tables (`cosmetics`, `cosmetic_events`, `cosmetic_reminders`), React Query hooks, cosmetics dashboard with quick actions/reminders, and modular add/edit flow (`src/views/cosmetics/*`).
+- **Cosmetics Module (MVP)**: Supabase tables (`cosmetics`, `cosmetic_events`, `cosmetic_reminders`, `cosmetic_category_types`), React Query hooks, cosmetics dashboard with quick actions/reminders, configurable category taxonomy, and modular add/edit flow (`src/views/cosmetics/*`).
 - **Documentation**: Design blueprint drafted for consumables and asset modules (`docs/design/household-inventory.md`)
 
 ### Recipe Management ✅
@@ -113,6 +113,7 @@
 ## Completed Today
 
 - Implemented cosmetics data model, hook layer, and UI (list, quick actions, modular add form) with Supabase migrations and RLS.
+- Added persisted cosmetic category types with Supabase migration, React hooks, admin UI, and cosmetics list filters consuming explicit taxonomy.
 - Split cosmetics add page into focused components (`components/`, `types.ts`, `constants.ts`, `utils.ts`) to ease maintenance.
 - Added Gemini-powered cosmetic image analysis that pre-fills form fields on upload.
 - Updated `todo.md` to reflect cosmetics backlog and marked implemented tasks.

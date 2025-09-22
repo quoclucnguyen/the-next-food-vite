@@ -23,8 +23,10 @@
 
 ## Recent Changes
 - Created Supabase tables (`cosmetics`, `cosmetic_events`, `cosmetic_reminders`) with RLS and indexes via migration.
+- Added `cosmetic_category_types` Supabase table to persist beauty-specific taxonomy plus optional category linkage.
 - Added typed hooks for cosmetics data, events, and reminders (`src/hooks/use-cosmetics.ts`, etc.).
 - Implemented cosmetics list UI, quick actions, and duplicate helper (`src/views/cosmetics/page.tsx` + supporting modules).
+- Refreshed cosmetics configuration manager to manage category types and assign inventory categories for filters.
 - Refactored cosmetics add editor into reusable subcomponents and shared utilities to reduce page complexity.
 - Updated `todo.md` checklist to reflect completed backend/UI tasks and outstanding follow-ups.
 

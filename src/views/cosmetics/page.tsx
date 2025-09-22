@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useCategories } from '@/hooks/use-categories';
+import { useCategories, type CategoryWithType } from '@/hooks/use-categories';
+import { useCosmeticCategoryTypes } from '@/hooks/use-cosmetic-category-types';
 import { useCosmetics, type Cosmetic } from '@/hooks/use-cosmetics';
 import { cn } from '@/lib/utils';
 import { Plus, RefreshCw, Search } from 'lucide-react';
@@ -24,18 +25,59 @@ export default function CosmeticsPage() {
   const { items, isLoading, isError, error, refetch, deleteItem, updateItem } =
     useCosmetics();
   const { categories } = useCategories();
+  const { categoryTypes } = useCosmeticCategoryTypes();
+
+  const { typedGroups, unassignedCategories } = useMemo(() => {
+    const sortedCategories = [...categories].sort((a, b) =>
+      a.display_name.localeCompare(b.display_name, 'vi', { sensitivity: 'base' })
+    );
+
+    const groups = categoryTypes
+      .map((type) => ({
+        id: type.id,
+        label: type.display_name,
+        categories: sortedCategories.filter(
+          (category) => category.cosmetic_category_type_id === type.id
+        ),
+      }))
+      .filter((group) => group.categories.length > 0);
+
+    const fallback = sortedCategories.filter(
+      (category) => !category.cosmetic_category_type_id
+    );
+
+    return { typedGroups: groups, unassignedCategories: fallback };
+  }, [categories, categoryTypes]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<Cosmetic['status'] | 'all'>(
     'all'
   );
+  const [typeFilter, setTypeFilter] = useState<string | 'all'>('all');
   const [categoryFilter, setCategoryFilter] = useState<string | 'all'>('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const categoryLookup = useMemo(() => {
+    const map = new Map<string, CategoryWithType>();
+    categories.forEach((category) => {
+      if (category.id) {
+        map.set(category.id, category);
+      }
+    });
+    return map;
+  }, [categories]);
 
   const cosmeticsWithMutators = useMemo(
     () => attachMutators(items, updateItem, deleteItem),
     [items, updateItem, deleteItem]
   );
+
+  const visibleTypedGroups = useMemo(() => {
+    if (typeFilter === 'all') {
+      return typedGroups;
+    }
+    return typedGroups.filter((group) => group.id === typeFilter);
+  }, [typedGroups, typeFilter]);
 
   const overview = useMemo(
     () => ({
@@ -57,11 +99,28 @@ export default function CosmeticsPage() {
           .some((value) => value?.toLowerCase().includes(term));
       const matchesStatus =
         statusFilter === 'all' || item.status === statusFilter;
+
+      const category = item.category_id
+        ? categoryLookup.get(item.category_id)
+        : undefined;
+      const categoryTypeId = category?.cosmetic_category_type_id ?? 'unassigned';
+
+      const matchesType =
+        typeFilter === 'all'
+          ? true
+          : categoryTypeId !== 'unassigned' && categoryTypeId === typeFilter;
       const matchesCategory =
         categoryFilter === 'all' || item.category_id === categoryFilter;
-      return matchesTerm && matchesStatus && matchesCategory;
+      return matchesTerm && matchesStatus && matchesType && matchesCategory;
     });
-  }, [cosmeticsWithMutators, searchTerm, statusFilter, categoryFilter]);
+  }, [
+    cosmeticsWithMutators,
+    searchTerm,
+    statusFilter,
+    categoryFilter,
+    typeFilter,
+    categoryLookup,
+  ]);
 
   const refresh = async () => {
     setIsRefreshing(true);
@@ -106,6 +165,22 @@ export default function CosmeticsPage() {
       </div>
     );
   }
+
+  const handleResetCategories = () => {
+    setTypeFilter('all');
+    setCategoryFilter('all');
+  };
+
+  const handleTypeSelect = (nextType: string) => {
+    setTypeFilter((current) => (current === nextType ? 'all' : nextType));
+    setCategoryFilter('all');
+  };
+
+  const handleCategorySelect = (categoryId: string) => {
+    setCategoryFilter(categoryId);
+    const category = categoryLookup.get(categoryId);
+    setTypeFilter(category?.cosmetic_category_type_id ?? 'all');
+  };
 
   return (
     <div className='min-h-screen bg-gray-50'>
@@ -183,7 +258,29 @@ export default function CosmeticsPage() {
                 </TabsList>
               </Tabs>
             </div>
-            <div className='md:col-span-1'>
+            <div className='md:col-span-1 space-y-3'>
+              <div className='space-y-2'>
+                <p className='text-xs font-medium uppercase text-gray-500'>Loại mỹ phẩm</p>
+                <div className='flex flex-wrap gap-2'>
+                  <Badge
+                    variant={typeFilter === 'all' ? 'default' : 'outline'}
+                    className='cursor-pointer'
+                    onClick={handleResetCategories}
+                  >
+                    Tất cả loại
+                  </Badge>
+                  {categoryTypes.map((type) => (
+                    <Badge
+                      key={type.id}
+                      variant={typeFilter === type.id ? 'default' : 'outline'}
+                      className='cursor-pointer'
+                      onClick={() => handleTypeSelect(type.id)}
+                    >
+                      {type.display_name}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
               <div className='flex flex-wrap gap-2'>
                 <Badge
                   variant={categoryFilter === 'all' ? 'default' : 'outline'}
@@ -192,19 +289,24 @@ export default function CosmeticsPage() {
                 >
                   Tất cả danh mục
                 </Badge>
-                {categories.map((category) => (
-                  <Badge
-                    key={category.id}
-                    variant={
-                      categoryFilter === category.id ? 'default' : 'outline'
-                    }
-                    className='cursor-pointer'
-                    onClick={() => setCategoryFilter(category.id)}
-                  >
-                    {category.display_name}
-                  </Badge>
-                ))}
               </div>
+              {visibleTypedGroups.map((group) => (
+                <CategoryBadgeGroup
+                  key={group.id}
+                  label={group.label}
+                  categories={group.categories}
+                  activeCategory={categoryFilter}
+                  onSelect={handleCategorySelect}
+                />
+              ))}
+              {typeFilter === 'all' && unassignedCategories.length > 0 && (
+                <CategoryBadgeGroup
+                  label='Danh mục chưa gán'
+                  categories={unassignedCategories}
+                  activeCategory={categoryFilter}
+                  onSelect={handleCategorySelect}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -273,6 +375,40 @@ function OverviewCard({
     <div className='rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm'>
       <p className='text-xs uppercase text-gray-500'>{title}</p>
       <p className='mt-1 text-2xl font-semibold text-gray-900'>{value}</p>
+    </div>
+  );
+}
+
+function CategoryBadgeGroup({
+  label,
+  categories,
+  activeCategory,
+  onSelect,
+}: Readonly<{
+  label: string;
+  categories: CategoryWithType[];
+  activeCategory: string | 'all';
+  onSelect: (categoryId: string) => void;
+}>) {
+  if (!categories.length) {
+    return null;
+  }
+
+  return (
+    <div>
+      <p className='text-xs font-medium uppercase text-gray-500 mb-1'>{label}</p>
+      <div className='flex flex-wrap gap-2'>
+        {categories.map((category) => (
+          <Badge
+            key={category.id}
+            variant={activeCategory === category.id ? 'default' : 'outline'}
+            className='cursor-pointer'
+            onClick={() => onSelect(category.id)}
+          >
+            {category.display_name}
+          </Badge>
+        ))}
+      </div>
     </div>
   );
 }
