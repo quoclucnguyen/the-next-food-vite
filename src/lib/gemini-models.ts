@@ -74,8 +74,8 @@ export async function getAvailableModels(
     return modelCache!.models;
   }
 
-  // Import here to avoid circular dependency
-  const { GeminiClient } = await import('./gemini-client');
+  // Import directly from the new modular structure to avoid circular dependency
+  const { GeminiModelService } = await import('./gemini/model-service');
 
   // Use provided API key or try to get from environment
   const key =
@@ -90,7 +90,7 @@ export async function getAvailableModels(
   }
 
   try {
-    const client = new GeminiClient(key);
+    const client = new GeminiModelService(key);
     const models = await client.getAvailableModels();
 
     // Update cache

@@ -107,7 +107,10 @@ export function CosmeticAIAnalysisCard({
   );
 }
 
-function Detail({ label, value }: { label: string; value?: string | null }) {
+function Detail({
+  label,
+  value,
+}: Readonly<{ label: string; value?: string | null }>) {
   if (!value) return null;
   return (
     <div>

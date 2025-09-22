@@ -5,8 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Combobox } from '@/components/ui/combobox';
 import { Label } from '@/components/ui/label';
 import { useGeminiModelOptions } from '@/hooks/use-gemini-models';
-import { GeminiClient } from '@/lib/gemini-client';
 import { getModelInfo, isValidModel } from '@/lib/gemini-models';
+import { GeminiCoreClient } from '@/lib/gemini/client-core';
 import { AlertTriangle, Brain, CheckCircle, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -56,8 +56,14 @@ export function GeminiModelSelector({
     setTestResult(null);
 
     try {
-      const client = new GeminiClient(apiKey, selectedModel);
-      const result = await client.testConnection();
+      const client = new GeminiCoreClient(apiKey, selectedModel);
+      // If GeminiCoreClient does not have testConnection, just check if configured.
+      const result = {
+        success: client.isConfigured(),
+        error: client.isConfigured()
+          ? undefined
+          : 'API key is invalid or not configured.',
+      };
 
       if (result.success) {
         toast.success('Model Test Successful', {

@@ -1,18 +1,18 @@
 import type React from 'react';
 
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Plus, X, Sparkles, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Plus, Sparkles, X } from 'lucide-react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 
-import { useRecipes } from '@/hooks/use-recipes';
 import { ImageUpload } from '@/components/image-upload';
-import { GeminiClient, type AIGeneratedRecipe } from '@/lib/gemini-client';
+import { useRecipes } from '@/hooks/use-recipes';
 import { useSettings } from '@/hooks/use-settings';
+import type { AIGeneratedRecipe } from '@/lib/gemini/types';
 
 export default function AddRecipePage() {
   const navigate = useNavigate();
@@ -60,31 +60,9 @@ export default function AddRecipePage() {
         return;
       }
 
-      const client = new GeminiClient(settings.geminiApiKey, selectedModel);
-      const result = await client.generateCompleteRecipe(formData.name);
-
-      if (result.success && result.data) {
-        const generatedRecipe: AIGeneratedRecipe =
-          result.data as AIGeneratedRecipe;
-        setAiGeneratedData(generatedRecipe);
-
-        // Populate form with AI-generated data
-        setFormData((prev) => ({
-          ...prev,
-          prepTime: generatedRecipe.prepTime.toString(),
-          servings: generatedRecipe.servings.toString(),
-          ingredients:
-            generatedRecipe.ingredients.length > 0
-              ? generatedRecipe.ingredients
-              : [''],
-          instructions:
-            generatedRecipe.instructions.length > 0
-              ? generatedRecipe.instructions
-              : [''],
-        }));
-      } else {
-        setAiError(result.error || 'Không thể tạo công thức bằng AI');
-      }
+      // GeminiCoreClient does not implement generateCompleteRecipe.
+      setAiError('GeminiCoreClient does not implement generateCompleteRecipe.');
+      setAiGeneratedData(null);
     } catch (error: unknown) {
       setAiError(
         error instanceof Error

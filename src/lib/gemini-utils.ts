@@ -151,10 +151,10 @@ export function modelSupportsCapability(
  * @param context - Context for the error (e.g., 'recipe generation')
  * @returns Standardized error response
  */
-export function handleApiError(
+export function handleApiError<T = unknown>(
   error: unknown,
   context: string
-): GeminiResponse {
+): GeminiResponse<T> {
   const errorMessage = error instanceof Error ? error.message : String(error);
 
   // Handle specific API error patterns

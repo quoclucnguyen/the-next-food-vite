@@ -1,4 +1,7 @@
-import { GeminiClient, type AIAnalyzedFoodItem } from '@/lib/gemini-client';
+import {
+  GeminiFoodService,
+  type AIAnalyzedFoodItem,
+} from '@/lib/gemini-client';
 import type { Database } from '@/lib/supabase';
 import { useState } from 'react';
 import type { UseFormSetValue } from 'react-hook-form';
@@ -58,7 +61,7 @@ export default function useAiImageAnalysis({
         return;
       }
 
-      const geminiClient = new GeminiClient(
+      const geminiClient = new GeminiFoodService(
         settings.geminiApiKey,
         selectedModel
       );
