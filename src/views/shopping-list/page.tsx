@@ -86,7 +86,7 @@ export default function ShoppingListPage() {
           // Only process home dishes (those with recipeId)
           if ('recipeId' in dish) {
             const recipe = recipes.find((r) => r.id === dish.recipeId);
-            if (recipe && recipe.ingredients) {
+            if (recipe?.ingredients) {
               const servingsMultiplier = dish.servings || 1;
               const baseServings = recipe.servings || 1;
               const scaleFactor = servingsMultiplier / baseServings;
