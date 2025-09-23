@@ -71,10 +71,11 @@ Existing solutions are fragmented:
 
 ## Integration Notes
 
-- Gemini AI used for recipe suggestions and, in future, intake assistance for consumables and assets.
-- Supabase handles auth and storage; RLS ensures user data isolation across all inventory tables.
-- Barcode scanning is high priority for food and consumables and planned but not fully implemented.
-- Documentation for multi-module inventory lives in `docs/design/household-inventory.md` (2025-08-20).
+- Cosmetics module is live: Supabase tables (`cosmetics`, `cosmetic_events`, `cosmetic_reminders`, `cosmetic_category_types`) back React Query hooks and modular UI in `src/views/cosmetics/*`, including AI image analysis and reminder scheduling.
+- Gemini AI currently powers cosmetics intake assistance; recipe generation remains stubbed until `GeminiCoreClient` implements full `generateCompleteRecipe` support.
+- Supabase handles auth and storage; RLS keeps per-household isolation across inventory, restaurant, and reminder tables.
+- Barcode scanning stays a high-priority enhancement for food and consumables intake flows.
+- Documentation for multi-module inventory lives in `docs/design/household-inventory.md` (kept current alongside schema updates).
 
 ## Success Indicators
 
@@ -86,6 +87,7 @@ Existing solutions are fragmented:
 
 ## Current Status
 
-- Product context refreshed to reflect repository state at commit `9c885c6031b7137163acaa1dd97d80f19f61b893` (2025-08-20).
-- AI features present but require prompt and response parsing improvements.
-- Barcode scanning prioritized for upcoming sprints.
+- Product context refreshed to reflect repository state at commit `812f7281c0ed8b0add7bde18b1dbfb1c20c964c1` (2025-09-23).
+- Cosmetics inventory experience available to end users; consumables/assets modules remain in planning/design.
+- AI flows work for cosmetics image analysis; recipe generation reliability is pending Gemini client enhancements.
+- Barcode scanning, reminder surfacing, and broader module integrations remain top roadmap items.

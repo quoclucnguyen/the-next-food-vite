@@ -46,20 +46,20 @@ This application addresses the common challenges of household inventory chaos, f
 
 ## Current Status (refreshed)
 
-- Repository up-to-date at commit: `9c885c6031b7137163acaa1dd97d80f19f61b893` (2025-08-20).
-- Core features implemented: authentication, food inventory CRUD, recipe storage, basic meal planning, partial Gemini AI integration.
-- Documentation extended to outline upcoming household consumables and assets modules (`docs/design/household-inventory.md`).
-- Active work visible in the codebase: inventory add flow (src/views/inventory/add/page.tsx), Inventory listing (src/views/inventory/page.tsx), and layout/navigation tweaks (src/components/layouts/AppLayout.tsx, src/components/bottom-nav.tsx).
-- Memory Bank documentation system present and being maintained.
+- Repository up-to-date at commit: `812f7281c0ed8b0add7bde18b1dbfb1c20c964c1` (2025-09-23).
+- Core features in production: Supabase auth, food inventory CRUD + filtering, recipe management, meal planning calendar, shopping list generation, restaurant tracker, and the cosmetics inventory module with AI-assisted intake and reminder scheduling.
+- Cosmetics workflows live under `src/views/cosmetics/`; the add page is modularised with AI analysis (`components/CosmeticAIAnalysisCard`), lifecycle summaries, and reminder configuration tied to Supabase hooks.
+- Gemini integration backed by `src/lib/gemini/*` powers cosmetic image analysis; recipe generation remains a stub until the Gemini client implements `generateCompleteRecipe`.
+- Documentation and Memory Bank remain the canonical sources for cross-session context and are being actively refreshed.
 
 ## Immediate Priorities
 
-1. Stabilize Gemini AI responses and parsing for recipe suggestions.
-2. Implement barcode scanning and expiration alerts for food inventory.
-3. Finalize data model plans and feature flags for consumables and assets modules.
-4. Polish inventory add/edit UX and quantity/unit handling.
-5. Improve test coverage and consistent loading/error states.
+1. Surface cosmetics reminders beyond the intake page (dashboard widgets, notifications) and introduce automated reminder status updates.
+2. Seed and govern cosmetics category taxonomy + feature flag toggles for staged rollout across households.
+3. Deliver cosmetics detail/timeline views that expose `cosmetic_events` logs and quick note capture.
+4. Kick off consumables inventory module (schema, hooks, list/intake UX) using cosmetics architecture as the template.
+5. Implement robust Gemini recipe generation + error handling so AI flows extend beyond cosmetics image analysis.
 
 ## Notes
 
-This file was refreshed automatically to reflect the current repository state and open work (2025-08-20 20:27 UTC+7).
+This file was refreshed automatically to reflect the current repository state and open work (2025-09-23 11:35 UTC+7).

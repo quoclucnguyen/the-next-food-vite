@@ -2,41 +2,41 @@
 
 ## Current Work Focus
 
-### Primary Development Areas (2025-08-22)
+### Primary Development Areas (2025-09-23)
 
-- Cosmetics inventory rollout: Supabase schema, hooks, and React views are now live. Focus is shifting to UX polish and feature gating.
-- Refactor cosmetics add page into modular components (`src/views/cosmetics/add/components/*` plus supporting `types.ts`, `constants.ts`, `utils.ts`).
-- Enable AI-powered image analysis for cosmetics intake (auto-fills name/brand/category/PAO via Gemini).
-- Extend cosmetics dashboard with quick actions/reminders (`src/views/cosmetics/page.tsx`).
-- Track follow-up tasks via `todo.md` (cosmetics module backlog).
-- Maintain documentation consistency across Memory Bank, checklist, and user guide entries.
+- Cosmetics module polish: elevate reminders beyond intake (dashboard surfacing, snooze flows) and build timeline/detail views leveraging `cosmetic_events`.
+- Harden cosmetics taxonomy management and rollout controls (feature flags, seeded category types).
+- Plan consumables module schema/hooks using cosmetics patterns; begin scaffolding shared reminder utilities.
+- Stabilize Gemini recipe generation path so AI extends beyond cosmetics image analysis.
+- Keep Memory Bank + docs in sync with the expanding inventory feature set.
 
 ### Open Files (focused work)
 
 - src/views/cosmetics/add/page.tsx
 - src/views/cosmetics/add/components/
+- src/views/cosmetics/add/useCosmeticImageAnalysis.ts
 - src/views/cosmetics/page.tsx
+- src/views/cosmetics/quick-actions.ts
 - src/hooks/use-cosmetics.ts
 - src/hooks/use-cosmetic-events.ts
 - src/hooks/use-cosmetic-reminders.ts
 - todo.md
 
 ## Recent Changes
-- Created Supabase tables (`cosmetics`, `cosmetic_events`, `cosmetic_reminders`) with RLS and indexes via migration.
-- Added `cosmetic_category_types` Supabase table to persist beauty-specific taxonomy plus optional category linkage.
-- Added typed hooks for cosmetics data, events, and reminders (`src/hooks/use-cosmetics.ts`, etc.).
-- Implemented cosmetics list UI, quick actions, and duplicate helper (`src/views/cosmetics/page.tsx` + supporting modules).
-- Refreshed cosmetics configuration manager to manage category types and assign inventory categories for filters.
-- Refactored cosmetics add editor into reusable subcomponents and shared utilities to reduce page complexity.
-- Updated `todo.md` checklist to reflect completed backend/UI tasks and outstanding follow-ups.
+- Implemented AI-assisted cosmetics intake (`useCosmeticImageAnalysis` + `GeminiCosmeticService`) with automatic category/unit seeding when Gemini suggests new values.
+- Added cosmetics quick actions that log Supabase events, update status/opened timestamps, and provide duplication via session storage snapshotting.
+- Introduced `cosmetic_category_types` management hook + UI filters so cosmetics list groups by typed taxonomy.
+- Wired reminder scheduling into cosmetics mutations and exposed settings card on the add/edit page.
+- Hardened Supabase type definitions (`src/lib/supabase.ts`) to include cosmetics tables, reminders, category types, and restaurant/shopping schemas.
+- Refined cosmetics list UI with overview cards, filters, skeletons, and reminder callouts.
 
 ## Next Steps (Immediate)
 
-1. Wire cosmetics reminders into global dashboard/notifications and shared analytics.
-2. Implement PAO presets and enhanced duplication UX for cosmetics intake.
-3. Introduce feature flags/settings toggle for cosmetics module rollout per household.
-4. Backfill tests for `useCosmetics` helpers and reminder scheduling.
-5. Continue documentation sync (Memory Bank, user manual, checklist) as cosmetics features evolve.
+1. Surface cosmetics reminders in dashboard widgets + notifications and implement automated reminder state transitions (snooze, dismiss).
+2. Deliver cosmetics detail/timeline views with `cosmetic_events` history and inline note capture.
+3. Seed + gate cosmetics taxonomy/feature flags for controlled rollout across households.
+4. Backfill Vitest coverage around cosmetic dispose date helpers, reminder scheduling, and Gemini parsing utilities.
+5. Start consumables module (schema draft, React Query hooks, basic list/intake UI) leveraging cosmetics patterns.
 
 ## Active Decisions and Considerations
 
@@ -46,6 +46,6 @@
 
 ## Technical Notes
 
-- Repository commit reference: `9c885c6031b7137163acaa1dd97d80f19f61b893` (latest recorded). Update as new commits land.
-- Last refresh: 2025-08-22 11:10 (UTC+7).
-- Cosmetics module artifacts live under `src/views/cosmetics/` with shared helpers in co-located subdirectories.
+- Repository commit reference: `812f7281c0ed8b0add7bde18b1dbfb1c20c964c1` (latest recorded).
+- Last refresh: 2025-09-23 11:35 (UTC+7).
+- Cosmetics module artifacts live under `src/views/cosmetics/` with hooks/utilities in `src/hooks` and `src/lib/gemini/*`.

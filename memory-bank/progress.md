@@ -17,7 +17,7 @@
 - **Categories**: Basic categorization system for food items
 - **Image Upload**: Photo capture and storage for inventory items
 - **CRUD Operations**: Full create, read, update, delete functionality for food inventory items
-- **Cosmetics Module (MVP)**: Supabase tables (`cosmetics`, `cosmetic_events`, `cosmetic_reminders`, `cosmetic_category_types`), React Query hooks, cosmetics dashboard with quick actions/reminders, configurable category taxonomy, and modular add/edit flow (`src/views/cosmetics/*`).
+- **Cosmetics Module (MVP)**: Supabase tables (`cosmetics`, `cosmetic_events`, `cosmetic_reminders`, `cosmetic_category_types`), React Query hooks, AI-assisted intake, reminder scheduling, quick actions with event logging, configurable taxonomy management, and modular add/edit flow (`src/views/cosmetics/*`).
 - **Documentation**: Design blueprint drafted for consumables and asset modules (`docs/design/household-inventory.md`)
 
 ### Recipe Management ✅
@@ -37,9 +37,9 @@
 
 ### AI Integration (Partial) ⚠️
 
-- **Gemini API Setup**: Basic integration with Google Gemini API
-- **Recipe Suggestions**: AI-powered recipe suggestions based on available ingredients
-- **Custom Prompts**: Tailored prompts for food-related AI responses
+- **Gemini API Setup**: Settings page manages API key storage and text/vision model selection.
+- **Image Analysis**: Food and cosmetics intake flows call Gemini services to prefill names, categories, units, and PAO hints (with auto-seeding of new taxonomy where needed).
+- **Recipe Generation**: Add-recipe AI button currently returns a stub error (`GeminiCoreClient` lacks `generateCompleteRecipe`); implementation + parsing remains outstanding.
 
 ## What's Left to Build
 
@@ -55,7 +55,7 @@
 - **Consumables Module**: Build date-tracked consumables CRUD, alerts, and UI
 - **Assets Module**: Build durable goods inventory with location/owner tagging and attachments
 - **Cross-Module Navigation**: Implement tabbed inventory navigation with feature flags
-- **Cosmetics Enhancements**: PAO presets, photo uploads, dashboard integration, feature flag rollout.
+- **Cosmetics Enhancements**: Detail/timeline view, reminder surfacing + automation, PAO presets, taxonomy seeding, and feature flag rollout.
 
 #### Advanced Meal Planning
 
@@ -72,6 +72,10 @@
 - **Price Tracking**: Track and compare prices across shopping trips
 - **Shopping History**: Keep history of purchased items
 - **Collaborative Shopping**: Share lists with family members
+
+#### AI Reliability
+
+- **Gemini Recipe Generation**: Implement recipe generation pipeline and resilient error handling so AI covers more than cosmetics image analysis.
 
 ### Medium Priority Features 🟡
 
@@ -123,6 +127,7 @@
 
 ### Major Issues 🟡
 
+- **Recipe AI Stub**: Add-recipe AI button shows `GeminiCoreClient does not implement generateCompleteRecipe`, blocking recipe generation flows.
 - **AI Response Consistency**: Gemini API sometimes returns inconsistent recipe formats
 - **Image Upload Performance**: Large images can cause slow upload times
 - **Mobile Safari Compatibility**: Some UI elements don't render correctly on iOS Safari
@@ -145,9 +150,9 @@
 
 ### Week 3-4: AI Enhancement
 
-- [ ] Improve Gemini API integration reliability
-- [ ] Implement better error handling for AI responses
-- [ ] Add more sophisticated recipe matching algorithms
+- [ ] Ship Gemini recipe generation pipeline (`generateCompleteRecipe`) for the add-recipe flow.
+- [ ] Improve Gemini API integration reliability.
+- [ ] Implement better error handling for AI responses.
 
 ### Month 2: Core Feature Expansion
 
@@ -155,6 +160,7 @@
 - [ ] Build comprehensive meal planning interface
 - [ ] Create smart shopping list generation
 - [ ] Add push notifications for expiration alerts
+- [ ] Launch cosmetics detail/timeline view with reminder surfacing and rollout controls.
 
 ## Metrics and KPIs (current)
 
@@ -165,4 +171,4 @@
 
 ## Notes
 
-This progress file was refreshed automatically to reflect the current repository state and recent documentation updates (2025-08-22 11:10 UTC+7).
+This progress file was refreshed automatically to reflect the current repository state and recent documentation updates (2025-09-23 11:35 UTC+7).

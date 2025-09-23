@@ -37,7 +37,7 @@
 ### AI Integration
 
 - @google/genai: ^1.10.0 (Gemini/GenAI client wrapper in dependencies)
-- Custom Gemini client wrappers exist under src/lib/gemini-\*
+- Custom Gemini client wrappers live under `src/lib/gemini/*`; cosmetics image analysis is wired end-to-end, while recipe generation currently surfaces a stubbed error until the Gemini client implements `generateCompleteRecipe`.
 
 ### Core Dependencies (from package.json)
 
@@ -138,12 +138,12 @@ pnpm run lint
 
 - Bundle target and Vite config require modern browsers (ES2020 target).
 - Image uploads limited by Supabase storage limits; keep images optimized.
-- Gemini API usage has rate and quota limits — implement retry/backoff.
+- Gemini API usage has rate and quota limits — implement retry/backoff; recipe flows currently block on API client enhancements.
 - Supabase rate limits depend on plan; implement caching and debounce where appropriate.
-- Cosmetics tables (`cosmetics`, `cosmetic_events`, `cosmetic_reminders`) created via migration; keep schema updates in migrations and reflect typings in `src/lib/supabase.ts`.
+- Cosmetics tables (`cosmetics`, `cosmetic_events`, `cosmetic_reminders`, `cosmetic_category_types`) ship via migration; keep schema updates in migrations and reflect typings in `src/lib/supabase.ts`.
 - Keep secrets out of source; use environment variables and CI secrets.
 
 ## Repository Metadata
 
-- Synced to commit: `9c885c6031b7137163acaa1dd97d80f19f61b893`
-- Last refreshed: 2025-08-22 11:10 (UTC+7)
+- Synced to commit: `812f7281c0ed8b0add7bde18b1dbfb1c20c964c1`
+- Last refreshed: 2025-09-23 11:35 (UTC+7)

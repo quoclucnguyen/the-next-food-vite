@@ -100,7 +100,7 @@ App
 2. ImageUpload handles media
 3. useFoodItems hook manages API calls and cache updates
 4. FoodItemCard displays item with expiration status
-5. Cosmetics module mirrors this flow with `useCosmetics` + subhooks, modular add form components (`src/views/cosmetics/add/components/*`), quick actions, and reminder tables for PAO tracking.
+5. Cosmetics module extends the pattern with `useCosmetics`, reminder/event hooks, modular intake components (`src/views/cosmetics/add/components/*`), AI image analysis (`useCosmeticImageAnalysis`), and list quick actions that log events to Supabase while optimistically updating React Query caches.
 6. Planned: consumables (`useConsumables`, replacement alerts) and assets (`useAssets`, maintenance logs) will reuse the cosmetics/food pattern (see `docs/design/household-inventory.md`).
 
 ### Recipe Suggestion Flow
@@ -128,5 +128,5 @@ App
 
 ## Notes
 
-- File refreshed to reflect repository state at commit `9c885c6031b7137163acaa1dd97d80f19f61b893` (2025-08-22 11:10 UTC+7).
-- Cosmetics module now serves as live reference for parallel inventory feature build-out; use it when scaffolding consumables/assets experiences.
+- File refreshed to reflect repository state at commit `812f7281c0ed8b0add7bde18b1dbfb1c20c964c1` (2025-09-23 11:35 UTC+7).
+- Cosmetics module now serves as the canonical blueprint for future inventory experiences (AI-assisted intake, reminder scheduling, optimistic quick actions, Supabase event logs).
