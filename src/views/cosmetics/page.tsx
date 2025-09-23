@@ -1,20 +1,16 @@
 import { CosmeticCard } from '@/components/cosmetics/cosmetic-card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCategories, type CategoryWithType } from '@/hooks/use-categories';
 import { useCosmeticCategoryTypes } from '@/hooks/use-cosmetic-category-types';
 import { useCosmetics, type Cosmetic } from '@/hooks/use-cosmetics';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { Plus, RefreshCw, Search, SlidersHorizontal } from 'lucide-react';
+import { Plus, RefreshCw } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { STATUS_FILTERS } from './constants';
+import { CosmeticsFilters } from './components/cosmetics-filters';
+import { OverviewCard } from './components/overview-card';
 import { DEFAULT_QUICK_ACTIONS } from './quick-actions';
 import {
   attachMutators,
@@ -60,8 +56,6 @@ export default function CosmeticsPage() {
   const [typeFilter, setTypeFilter] = useState<string | 'all'>('all');
   const [categoryFilter, setCategoryFilter] = useState<string | 'all'>('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const isMobile = useIsMobile?.() ?? false;
-  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
 
   const categoryLookup = useMemo(() => {
     const map = new Map<string, CategoryWithType>();
@@ -178,6 +172,10 @@ export default function CosmeticsPage() {
     setCategoryFilter('all');
   };
 
+  const handleSelectAllCategories = () => {
+    setCategoryFilter('all');
+  };
+
   const handleTypeSelect = (nextType: string) => {
     setTypeFilter((current) => (current === nextType ? 'all' : nextType));
     setCategoryFilter('all');
@@ -191,7 +189,7 @@ export default function CosmeticsPage() {
 
   return (
     <div className='min-h-screen bg-gray-50'>
-      <header className='bg-white border-b shadow-sm sticky top-0 z-10'>
+      <header className='bg-white border-b shadow-sm lg:sticky lg:top-0 lg:z-10'>
         <div className='px-4 py-4 space-y-4'>
           <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3'>
             <div>
@@ -237,176 +235,21 @@ export default function CosmeticsPage() {
             <OverviewCard title='Chưa mở' value={overview.unopened} />
           </div>
 
-          <div className='grid gap-3 grid-cols-1 md:grid-cols-3'>
-            <div className='md:col-span-1'>
-              <div className='relative'>
-                <Search className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4' />
-                <Input
-                  placeholder='Tìm kiếm tên, thương hiệu, ghi chú...'
-                  value={searchTerm}
-                  onChange={(event) => setSearchTerm(event.target.value)}
-                  className='pl-10'
-                />
-              </div>
-            </div>
-            <div className='md:col-span-1'>
-              <Tabs
-                value={statusFilter}
-                onValueChange={(value) =>
-                  setStatusFilter(value as Cosmetic['status'] | 'all')
-                }
-              >
-                <TabsList className='w-full overflow-x-auto'>
-                  {STATUS_FILTERS.map((filter) => (
-                    <TabsTrigger
-                      key={filter.value}
-                      value={filter.value}
-                      className='flex-1 text-xs'
-                    >
-                      {filter.label}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </Tabs>
-            </div>
-            {/* Mobile filter button */}
-            {isMobile ? (
-              <div className='md:col-span-1 flex items-center justify-end'>
-                <Sheet open={filterSheetOpen} onOpenChange={setFilterSheetOpen}>
-                  <SheetTrigger asChild>
-                    <Button
-                      variant='outline'
-                      size='sm'
-                      className='flex items-center gap-2 w-full sm:w-auto'
-                      onClick={() => setFilterSheetOpen(true)}
-                    >
-                      <SlidersHorizontal className='w-4 h-4' />
-                      Bộ lọc
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent
-                    side='bottom'
-                    className='max-h-[80vh] overflow-y-auto'
-                  >
-                    <div className='space-y-3 py-2'>
-                      <div className='space-y-2'>
-                        <p className='text-xs font-medium uppercase text-gray-500'>
-                          Loại mỹ phẩm
-                        </p>
-                        <div className='flex flex-nowrap gap-2 overflow-x-auto pb-2'>
-                          <Badge
-                            variant={
-                              typeFilter === 'all' ? 'default' : 'outline'
-                            }
-                            className='cursor-pointer whitespace-nowrap text-xs px-2 py-1'
-                            onClick={handleResetCategories}
-                          >
-                            Tất cả loại
-                          </Badge>
-                          {categoryTypes.map((type) => (
-                            <Badge
-                              key={type.id}
-                              variant={
-                                typeFilter === type.id ? 'default' : 'outline'
-                              }
-                              className='cursor-pointer whitespace-nowrap text-xs px-2 py-1'
-                              onClick={() => handleTypeSelect(type.id)}
-                            >
-                              {type.display_name}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                      <div className='flex flex-nowrap gap-2 overflow-x-auto pb-2'>
-                        <Badge
-                          variant={
-                            categoryFilter === 'all' ? 'default' : 'outline'
-                          }
-                          className='cursor-pointer whitespace-nowrap text-xs px-2 py-1'
-                          onClick={() => setCategoryFilter('all')}
-                        >
-                          Tất cả danh mục
-                        </Badge>
-                      </div>
-                      {visibleTypedGroups.map((group) => (
-                        <CategoryBadgeGroup
-                          key={group.id}
-                          label={group.label}
-                          categories={group.categories}
-                          activeCategory={categoryFilter}
-                          onSelect={handleCategorySelect}
-                          mobile
-                        />
-                      ))}
-                      {typeFilter === 'all' &&
-                        unassignedCategories.length > 0 && (
-                          <CategoryBadgeGroup
-                            label='Danh mục chưa gán'
-                            categories={unassignedCategories}
-                            activeCategory={categoryFilter}
-                            onSelect={handleCategorySelect}
-                            mobile
-                          />
-                        )}
-                    </div>
-                  </SheetContent>
-                </Sheet>
-              </div>
-            ) : (
-              <div className='md:col-span-1 space-y-3'>
-                <div className='space-y-2'>
-                  <p className='text-xs font-medium uppercase text-gray-500'>
-                    Loại mỹ phẩm
-                  </p>
-                  <div className='flex flex-wrap gap-2'>
-                    <Badge
-                      variant={typeFilter === 'all' ? 'default' : 'outline'}
-                      className='cursor-pointer'
-                      onClick={handleResetCategories}
-                    >
-                      Tất cả loại
-                    </Badge>
-                    {categoryTypes.map((type) => (
-                      <Badge
-                        key={type.id}
-                        variant={typeFilter === type.id ? 'default' : 'outline'}
-                        className='cursor-pointer'
-                        onClick={() => handleTypeSelect(type.id)}
-                      >
-                        {type.display_name}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                <div className='flex flex-wrap gap-2'>
-                  <Badge
-                    variant={categoryFilter === 'all' ? 'default' : 'outline'}
-                    className='cursor-pointer'
-                    onClick={() => setCategoryFilter('all')}
-                  >
-                    Tất cả danh mục
-                  </Badge>
-                </div>
-                {visibleTypedGroups.map((group) => (
-                  <CategoryBadgeGroup
-                    key={group.id}
-                    label={group.label}
-                    categories={group.categories}
-                    activeCategory={categoryFilter}
-                    onSelect={handleCategorySelect}
-                  />
-                ))}
-                {typeFilter === 'all' && unassignedCategories.length > 0 && (
-                  <CategoryBadgeGroup
-                    label='Danh mục chưa gán'
-                    categories={unassignedCategories}
-                    activeCategory={categoryFilter}
-                    onSelect={handleCategorySelect}
-                  />
-                )}
-              </div>
-            )}
-          </div>
+          <CosmeticsFilters
+            searchTerm={searchTerm}
+            onSearchTermChange={setSearchTerm}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            typeFilter={typeFilter}
+            categoryFilter={categoryFilter}
+            categoryTypes={categoryTypes}
+            visibleTypedGroups={visibleTypedGroups}
+            unassignedCategories={unassignedCategories}
+            onResetCategories={handleResetCategories}
+            onSelectAllCategories={handleSelectAllCategories}
+            onTypeSelect={handleTypeSelect}
+            onCategorySelect={handleCategorySelect}
+          />
         </div>
       </header>
 
@@ -461,65 +304,6 @@ export default function CosmeticsPage() {
           </div>
         )}
       </main>
-    </div>
-  );
-}
-
-function OverviewCard({
-  title,
-  value,
-}: Readonly<{ title: string; value: number }>) {
-  return (
-    <div className='rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm'>
-      <p className='text-xs uppercase text-gray-500'>{title}</p>
-      <p className='mt-1 text-2xl font-semibold text-gray-900'>{value}</p>
-    </div>
-  );
-}
-
-function CategoryBadgeGroup({
-  label,
-  categories,
-  activeCategory,
-  onSelect,
-  mobile,
-}: Readonly<{
-  label: string;
-  categories: CategoryWithType[];
-  activeCategory: string | 'all';
-  onSelect: (categoryId: string) => void;
-  mobile?: boolean;
-}>) {
-  if (!categories.length) {
-    return null;
-  }
-
-  return (
-    <div>
-      <p className='text-xs font-medium uppercase text-gray-500 mb-1'>
-        {label}
-      </p>
-      <div
-        className={
-          mobile
-            ? 'flex flex-nowrap gap-2 overflow-x-auto pb-2'
-            : 'flex flex-wrap gap-2'
-        }
-      >
-        {categories.map((category) => (
-          <Badge
-            key={category.id}
-            variant={activeCategory === category.id ? 'default' : 'outline'}
-            className={
-              'cursor-pointer' +
-              (mobile ? ' whitespace-nowrap text-xs px-2 py-1' : '')
-            }
-            onClick={() => onSelect(category.id)}
-          >
-            {category.display_name}
-          </Badge>
-        ))}
-      </div>
     </div>
   );
 }
