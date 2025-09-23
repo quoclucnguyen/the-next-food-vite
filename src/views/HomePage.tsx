@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -7,18 +9,22 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { useCosmetics, formatCosmeticDate } from '@/hooks/use-cosmetics';
+import { useCosmeticReminders } from '@/hooks/use-cosmetic-reminders';
 import { useFoodItems } from '@/hooks/use-food-items';
 import { useMealPlans } from '@/hooks/use-meal-plans';
 import { useRecipes } from '@/hooks/use-recipes';
 import { useShoppingList } from '@/hooks/use-shopping-list';
 import {
   AlertTriangle,
+  Bell,
   Calendar,
   ChefHat,
   Clock,
   Package,
   Plus,
   ShoppingCart,
+  Sparkles,
   TrendingUp,
 } from 'lucide-react';
 import { Link } from 'react-router';
@@ -28,6 +34,65 @@ export default function HomePage() {
   const { items: foodItems, isLoading: foodItemsLoading } = useFoodItems();
   const { mealPlans, loading: mealPlansLoading } = useMealPlans();
   const { items: shoppingItems, loading: shoppingLoading } = useShoppingList();
+  const { items: cosmetics, isLoading: cosmeticsLoading } = useCosmetics();
+  const {
+    reminders: cosmeticReminders,
+    isLoading: cosmeticRemindersLoading,
+  } = useCosmeticReminders(null);
+
+  const cosmeticsStatsLoading = cosmeticsLoading || cosmeticRemindersLoading;
+  const totalCosmetics = cosmetics.length;
+
+  const cosmeticsDueSoon = useMemo(
+    () => cosmetics.filter((item) => item.status === 'warning').length,
+    [cosmetics]
+  );
+  const cosmeticsExpired = useMemo(
+    () => cosmetics.filter((item) => item.status === 'expired').length,
+    [cosmetics]
+  );
+  const reminderCosmeticMap = useMemo(() => {
+    const map = new Map<string, (typeof cosmetics)[number]>();
+    cosmetics.forEach((cosmetic) => {
+      map.set(cosmetic.id, cosmetic);
+    });
+    return map;
+  }, [cosmetics]);
+  const pendingCosmeticReminders = useMemo(
+    () =>
+      cosmeticReminders.filter(
+        (reminder) =>
+          reminder.status === 'pending' || reminder.status === 'snoozed'
+      ),
+    [cosmeticReminders]
+  );
+  const upcomingCosmeticReminders = useMemo(
+    () =>
+      pendingCosmeticReminders
+        .slice()
+        .sort(
+          (a, b) =>
+            new Date(a.remind_at).getTime() - new Date(b.remind_at).getTime()
+        )
+        .slice(0, 3)
+        .map((reminder) => ({
+          reminder,
+          cosmetic: reminderCosmeticMap.get(reminder.cosmetic_id) ?? null,
+        })),
+    [pendingCosmeticReminders, reminderCosmeticMap]
+  );
+  const totalPendingCosmeticReminders = pendingCosmeticReminders.length;
+
+  const getReminderStatusLabel = (status: string) => {
+    switch (status) {
+      case 'snoozed':
+        return 'Đã hoãn';
+      case 'sent':
+        return 'Đã gửi';
+      default:
+        return 'Đang chờ';
+    }
+  };
 
   // Calculate statistics
   const totalRecipes = recipes?.length || 0;
@@ -53,7 +118,12 @@ export default function HomePage() {
       ?.slice(0, 3) || [];
 
   const isLoading =
-    recipesLoading || foodItemsLoading || mealPlansLoading || shoppingLoading;
+    recipesLoading ||
+    foodItemsLoading ||
+    mealPlansLoading ||
+    shoppingLoading ||
+    cosmeticsLoading ||
+    cosmeticRemindersLoading;
 
   return (
     <div className='p-4 space-y-6'>
@@ -76,7 +146,7 @@ export default function HomePage() {
       </div>
 
       {/* Statistics Cards */}
-      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+      <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4'>
         <Card>
           <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
             <CardTitle className='text-sm font-medium'>Công thức</CardTitle>
@@ -103,6 +173,23 @@ export default function HomePage() {
             </div>
             <p className='text-xs text-muted-foreground'>
               Số loại thực phẩm trong kho
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+            <CardTitle className='text-sm font-medium'>Mỹ phẩm</CardTitle>
+            <Sparkles className='h-4 w-4 text-muted-foreground' />
+          </CardHeader>
+          <CardContent>
+            <div className='text-2xl font-bold'>
+              {cosmeticsStatsLoading ? '...' : totalCosmetics}
+            </div>
+            <p className='text-xs text-muted-foreground'>
+              {cosmeticsStatsLoading
+                ? 'Đang cập nhật mỹ phẩm'
+                : `${cosmeticsDueSoon} sắp bỏ / ${cosmeticsExpired} hết hạn`}
             </p>
           </CardContent>
         </Card>
@@ -152,7 +239,7 @@ export default function HomePage() {
           <CardDescription>Truy cập nhanh các tính năng chính</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3'>
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3'>
             <Button asChild variant='outline' className='h-auto p-4'>
               <Link to='/recipes' className='flex flex-col items-center gap-2'>
                 <ChefHat className='h-6 w-6' />
@@ -166,6 +253,15 @@ export default function HomePage() {
               >
                 <Package className='h-6 w-6' />
                 <span>Kho thực phẩm</span>
+              </Link>
+            </Button>
+            <Button asChild variant='outline' className='h-auto p-4'>
+              <Link
+                to='/inventory/cosmetics'
+                className='flex flex-col items-center gap-2'
+              >
+                <Sparkles className='h-6 w-6' />
+                <span>Quản lý mỹ phẩm</span>
               </Link>
             </Button>
             <Button asChild variant='outline' className='h-auto p-4'>
@@ -191,7 +287,7 @@ export default function HomePage() {
       </Card>
 
       {/* Recent Activity & Alerts */}
-      <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+      <div className='grid grid-cols-1 lg:grid-cols-4 gap-6'>
         {/* Recent Recipes */}
         <Card>
           <CardHeader>
@@ -322,6 +418,72 @@ export default function HomePage() {
               <Button asChild variant='ghost' size='sm' className='w-full'>
                 <Link to='/meal-planning'>Xem kế hoạch</Link>
               </Button>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Cosmetics Reminders */}
+        <Card>
+          <CardHeader>
+            <CardTitle className='flex items-center gap-2'>
+              <Bell className='h-5 w-5' />
+              Nhắc nhở mỹ phẩm
+            </CardTitle>
+          </CardHeader>
+          <CardContent className='space-y-3'>
+            {cosmeticRemindersLoading ? (
+              <div className='space-y-2'>
+                <div className='h-4 bg-muted rounded animate-pulse' />
+                <div className='h-4 bg-muted rounded animate-pulse' />
+                <div className='h-4 bg-muted rounded animate-pulse' />
+              </div>
+            ) : upcomingCosmeticReminders.length > 0 ? (
+              upcomingCosmeticReminders.map(({ reminder, cosmetic }) => {
+                const remindDate = formatCosmeticDate(reminder.remind_at);
+                const snoozedUntil =
+                  reminder.snoozed_until
+                    ? formatCosmeticDate(reminder.snoozed_until)
+                    : null;
+                const badgeVariant =
+                  reminder.status === 'snoozed' ? 'secondary' : 'outline';
+
+                return (
+                  <div
+                    key={reminder.id}
+                    className='flex items-start justify-between gap-3'
+                  >
+                    <div className='space-y-1'>
+                      <p className='font-medium'>
+                        {cosmetic?.name ?? 'Mỹ phẩm chưa xác định'}
+                      </p>
+                      <p className='text-sm text-muted-foreground'>
+                        Nhắc vào {remindDate ?? 'đang cập nhật'}
+                        {reminder.status === 'snoozed' && snoozedUntil
+                          ? ` • Hoãn đến ${snoozedUntil}`
+                          : ''}
+                      </p>
+                    </div>
+                    <Badge variant={badgeVariant}>
+                      {getReminderStatusLabel(reminder.status)}
+                    </Badge>
+                  </div>
+                );
+              })
+            ) : (
+              <p className='text-sm text-muted-foreground'>
+                Không có nhắc nhở mỹ phẩm nào trong 14 ngày tới.
+              </p>
+            )}
+
+            {!cosmeticRemindersLoading && (
+              <div className='space-y-2'>
+                <p className='text-xs text-muted-foreground'>
+                  Tổng nhắc nhở đang chờ: {totalPendingCosmeticReminders}
+                </p>
+                <Button asChild variant='ghost' size='sm' className='w-full'>
+                  <Link to='/inventory/cosmetics'>Quản lý mỹ phẩm</Link>
+                </Button>
+              </div>
             )}
           </CardContent>
         </Card>

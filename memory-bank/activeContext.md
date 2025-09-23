@@ -29,6 +29,7 @@
 - Wired reminder scheduling into cosmetics mutations and exposed settings card on the add/edit page.
 - Hardened Supabase type definitions (`src/lib/supabase.ts`) to include cosmetics tables, reminders, category types, and restaurant/shopping schemas.
 - Refined cosmetics list UI with overview cards, filters, skeletons, and reminder callouts.
+- Locked down restaurants table RLS to allow authenticated users to manage only their own records; client inserts now succeed.
 
 ## Next Steps (Immediate)
 

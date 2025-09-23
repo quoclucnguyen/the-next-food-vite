@@ -19,6 +19,7 @@
 - **CRUD Operations**: Full create, read, update, delete functionality for food inventory items
 - **Cosmetics Module (MVP)**: Supabase tables (`cosmetics`, `cosmetic_events`, `cosmetic_reminders`, `cosmetic_category_types`), React Query hooks, AI-assisted intake, reminder scheduling, quick actions with event logging, configurable taxonomy management, and modular add/edit flow (`src/views/cosmetics/*`).
 - **Documentation**: Design blueprint drafted for consumables and asset modules (`docs/design/household-inventory.md`)
+- **Restaurants RLS**: Supabase policies ensure authenticated users can create, read, update, and delete only their own restaurant entries.
 
 ### Recipe Management ✅
 
