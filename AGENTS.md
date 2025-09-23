@@ -41,6 +41,9 @@
 ## Cline Memory Bank Workflow
 The Cline Memory Bank turns this repository into a persistent knowledge base that Codex/Cline must read at the start of every task. Keep the documentation accurate—future sessions rely on it entirely.
 
+### MCP context7 Requirement
+- Trước khi bắt đầu bất kỳ task nào, luôn gọi MCP `context7` để tra cứu tài liệu liên quan (dùng `resolve-library-id` rồi `get-library-docs` nếu cần). Việc này phải diễn ra trước khi lập kế hoạch hoặc sửa code để đảm bảo đang áp dụng hướng dẫn mới nhất từ thư viện/bộ SDK liên quan.
+
 ### Quick Setup
 1. Install or open the Cline extension.
 2. Copy the complete custom instructions block below.
