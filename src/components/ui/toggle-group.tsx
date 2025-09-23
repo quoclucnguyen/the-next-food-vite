@@ -1,3 +1,7 @@
+import type {
+  ToggleGroupMultipleProps,
+  ToggleGroupSingleProps,
+} from '@radix-ui/react-toggle-group';
 import * as ToggleGroupPrimitive from '@radix-ui/react-toggle-group';
 import { type VariantProps } from 'class-variance-authority';
 import * as React from 'react';
@@ -12,22 +16,56 @@ const ToggleGroupContext = React.createContext<
   variant: 'default',
 });
 
+type ToggleGroupProps =
+  | (ToggleGroupSingleProps & VariantProps<typeof toggleVariants>)
+  | (ToggleGroupMultipleProps & VariantProps<typeof toggleVariants>);
+
 const ToggleGroup = React.forwardRef<
   React.ElementRef<typeof ToggleGroupPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof ToggleGroupPrimitive.Root> &
-    VariantProps<typeof toggleVariants> & { type?: 'single' | 'multiple' }
->(({ className, variant, size, children, type = 'single', ...props }, ref) => (
-  <ToggleGroupPrimitive.Root
-    ref={ref}
-    className={cn('flex items-center justify-center gap-1', className)}
-    type={type as any}
-    {...props}
-  >
-    <ToggleGroupContext.Provider value={{ variant, size }}>
-      {children}
-    </ToggleGroupContext.Provider>
-  </ToggleGroupPrimitive.Root>
-));
+  ToggleGroupProps
+>(({ className, variant, size, children, type = 'single', ...props }, ref) => {
+  const commonProps = {
+    ref,
+    className: cn('flex items-center justify-center gap-1', className),
+    disabled: props.disabled,
+    rovingFocus: props.rovingFocus,
+  };
+
+  // Use conditional rendering to ensure proper type discrimination
+  if (type === 'multiple') {
+    return (
+      <ToggleGroupPrimitive.Root
+        {...commonProps}
+        value={props.value as string[] | undefined}
+        defaultValue={props.defaultValue as string[] | undefined}
+        onValueChange={
+          props.onValueChange as ((value: string[]) => void) | undefined
+        }
+        type='multiple'
+      >
+        <ToggleGroupContext.Provider value={{ variant, size }}>
+          {children}
+        </ToggleGroupContext.Provider>
+      </ToggleGroupPrimitive.Root>
+    );
+  }
+
+  return (
+    <ToggleGroupPrimitive.Root
+      {...commonProps}
+      value={props.value as string | undefined}
+      defaultValue={props.defaultValue as string | undefined}
+      onValueChange={
+        props.onValueChange as ((value: string) => void) | undefined
+      }
+      type='single'
+    >
+      <ToggleGroupContext.Provider value={{ variant, size }}>
+        {children}
+      </ToggleGroupContext.Provider>
+    </ToggleGroupPrimitive.Root>
+  );
+});
 
 ToggleGroup.displayName = ToggleGroupPrimitive.Root.displayName;
 

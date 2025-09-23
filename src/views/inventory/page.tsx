@@ -1,4 +1,4 @@
-import { FoodItemCard } from '@/components/food-item-card';
+import { FoodItemCard } from '@/views/inventory/components/food-item-card';
 import { MultiSelectCategories } from '@/components/multi-select-categories';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';

@@ -1,4 +1,4 @@
-import { CosmeticCard } from '@/components/cosmetics/cosmetic-card';
+import { CosmeticCard } from '@/views/cosmetics/components/cosmetic-card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';

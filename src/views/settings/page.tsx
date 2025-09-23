@@ -1,6 +1,6 @@
 'use client';
 
-import { CategoriesUnitsManager } from '@/components/categories-units-manager';
+import { CategoriesUnitsManager } from '@/views/settings/components/categories-units-manager';
 import { GeminiApiKeySetup } from '@/components/gemini-api-key-setup';
 import { GeminiImageModelSelector } from '@/components/gemini-image-model-selector';
 import { GeminiModelSelector } from '@/components/gemini-model-selector';

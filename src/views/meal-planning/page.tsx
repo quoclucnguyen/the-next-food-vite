@@ -10,7 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { EditMealDialog, MealCell } from '@/components/meal-planning';
+import { EditMealDialog, MealCell } from '@/views/meal-planning/components';
 import { useMealPlans } from '@/hooks/use-meal-plans';
 import { useRecipes } from '@/hooks/use-recipes';
 import type { MealPlan } from '@/types/meal-planning';

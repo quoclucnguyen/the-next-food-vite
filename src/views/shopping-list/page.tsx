@@ -1,4 +1,4 @@
-import { AddShoppingItemDialog } from '@/components/add-shopping-item-dialog';
+import { AddShoppingItemDialog } from '@/views/shopping-list/components/add-shopping-item-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

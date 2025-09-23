@@ -1,4 +1,4 @@
-import { RecipeCard } from '@/components/recipe-card';
+import { RecipeCard } from '@/views/recipes/components/recipe-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useRecipes } from '@/hooks/use-recipes';
