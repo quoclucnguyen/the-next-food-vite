@@ -82,7 +82,7 @@ export function EditMealDialog({
   onOpenChange,
   mealPlan,
   existingMealPlans = [],
-}: EditMealDialogProps) {
+}: Readonly<EditMealDialogProps>) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -123,6 +123,7 @@ export function EditMealDialog({
   };
 
   const watchedSource = form.watch('source');
+  const watchedRestaurantId = form.watch('restaurantId');
   const watchedDate = form.watch('date');
   const watchedMealType = form.watch('meal_type');
   const watchedDishes = form.watch('dishes');
@@ -173,11 +174,17 @@ export function EditMealDialog({
   }, [watchedSource, form]);
 
   const handleDishesChange = (dishes: MealDish[]) => {
-    form.setValue('dishes', dishes);
+    form.setValue('dishes', dishes, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
   };
 
   const handleRestaurantChange = (restaurantId: string) => {
-    form.setValue('restaurantId', restaurantId);
+    form.setValue('restaurantId', restaurantId, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
   };
 
   const handleSubmit = async (data: MealPlanFormData) => {
@@ -406,7 +413,7 @@ export function EditMealDialog({
               <div className='space-y-2'>
                 <FormLabel>Chọn nhà hàng</FormLabel>
                 <RestaurantPicker
-                  value={form.getValues('restaurantId')}
+                  value={watchedRestaurantId}
                   onChange={handleRestaurantChange}
                   placeholder='Chọn nhà hàng cho bữa ăn...'
                   showDetails={true}
